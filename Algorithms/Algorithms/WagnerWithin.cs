@@ -1,86 +1,163 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Algorithms
 {
     class WagnerWithin
     {
-        //Paramètres de l'exemple du papier de Wagner Within (1958)
-        public readonly int[] demand; //demande
-        public readonly int[] setupCosts; //setup costs
-        public readonly int[] inventoryCosts; //inventory costs
-        public readonly int numberOfPeriods; //nombre de périodes
+        public readonly int[] demand;
+        public readonly int[] setupCosts;
+        public readonly int[] inventoryCosts;
+        public readonly int horizon;
 
-        private int[] minimalCosts;//couts minimaux des plages 1 à i pour i allant de 1 à N
+        //output variables
+        private int[] minimalCosts;//minimum production costs for plannings from period 1 to i
+        private int[][] optimalProductionQuantity;//production plans for plannings from period 1 to i
+        private int[][] optimalInventory;//inventory for plannings from periods 1 to i
+
         public int[] MinimalCosts {
             get {
                 if (minimalCosts == null) {
-                    minimalCosts = ComputeMinimalCosts();
+                    ComputeProductionPlan();
                 }
                 return minimalCosts;
             }
-        } 
+        }
+        public int[] OptimalProductionQuantity
+        {
+            get
+            {
+                if (optimalProductionQuantity == null)
+                {
+                    ComputeProductionPlan();
+                }
+                return optimalProductionQuantity[horizon-1];
+            }
+        }
+        public int[] OptimalInventory
+        {
+            get
+            {
+                if (optimalInventory == null)
+                {
+                    ComputeProductionPlan();
+                }
+                return optimalInventory[horizon-1];
+            }
+        }
+
+
+        private void InitializeArrays()
+        {
+            minimalCosts = new int[horizon];
+            optimalProductionQuantity = new int[horizon][];
+            optimalInventory = new int[horizon][];
+
+            for (int i = 0; i <horizon; i++)
+            {
+                optimalProductionQuantity[i] = new int[i + 1];
+                optimalInventory[i] = new int[i + 1];
+            }
+        }
 
         public WagnerWithin() {
-            //Crée la classe par défaut avec les paramètres de l'exemple du papier de Wagner et Within (1958)
             this.demand = new int[] { 69, 29, 36, 61, 61, 26, 34, 67, 45, 67, 79, 56 };
             this.setupCosts = new int[] { 85, 102, 102, 101, 98, 114, 105, 86, 119, 110, 98, 114 };
             this.inventoryCosts = new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-            this.numberOfPeriods = 12;
+            this.horizon = 12;
         }
 
-        public WagnerWithin(int N, int[] d, int[] s, int[] ic) {
-            this.demand = d;
-            this.setupCosts = s;
-            this.inventoryCosts = ic;
-            this.numberOfPeriods = N;
+        public WagnerWithin(int numberOfPeriods, int[] demand, int[] setupCosts, int[] inventoryCosts) {
+            this.demand = demand;
+            this.setupCosts = setupCosts;
+            this.inventoryCosts = inventoryCosts;
+            this.horizon = numberOfPeriods;
         }
 
-        public int[] ComputeMinimalCosts()
+        public WagnerWithin(Context context) {
+            this.demand = context.demand;
+            this.setupCosts = context.setupCosts;
+            this.inventoryCosts = context.inventoryCosts;
+            this.horizon = context.horizon;
+        }
+
+        public void ComputeProductionPlan()
         {
-            minimalCosts = new int[numberOfPeriods];
-            for (int i = 0; i < numberOfPeriods; i++) //Détermination du cout minimum pour les périodes i allant de 1 à N
-            {
-                minimalCosts[i] = ComputeMinimalCostForPeriods1toI(i);
+            InitializeArrays();
+            for (int i = 0; i < horizon; i++) { 
+                ComputeProductionPlanForPeriods1ToI(i);
             }
-            return minimalCosts;
         }
 
-        private int ComputeMinimalCostForPeriods1toI(int i)
+        private void ComputeProductionPlanForPeriods1ToI(int i)
         {
-            if (i == 0 && demand[0] != 0) return setupCosts[0]; //pour la première période le coût minimum est le setup cost de la période 1 si la demande est non nulle
-            else if (i == 0 && demand[0] == 0) return 0; //si la demande à la première période est nulle, on ne produit rien et il n'y a pas de coûts
+            if (i == 0) {
+                //first period particular case
+                optimalInventory[0][0] = 0;
+                optimalProductionQuantity[0][0] = demand[0];
+            }
 
-            List<int> costs = new List<int>(); //liste des i coûts si on satisfait la demande de la période i en commandant aux périodes 1<=j<=i
-            int cost = 0;
-            for (int j = 0; j < i; j++)
-            {
-                if (j > 0) cost = minimalCosts[j - 1]; //cout en commandant à la période j<i => cout minimum entre 1 et j-1 + setup costs j + coûts de stock de j à i
-                cost += setupCosts[j];
+            List<int> possibleCosts = new List<int>(); //i possible costs for satisfying demand by launching production at period j, 1<=j<=i
+            List<int[]> possibleInventories = new List<int[]>();
+            List<int[]> possibleProductionQuantities = new List<int[]>();
 
-                //calcul des couts de stock
+
+            //cost and production plan evaluation if production is launched at period j to satisfy demand at period i
+            for (int j = 0; j <= i; j++) {
+
+                int tempCost = 0; 
+                int[] tempInventory = new int[i + 1]; 
+                int[] tempProductionQuantity = new int[i + 1]; 
+
+                if (j > 0)
+                {
+                    tempCost = minimalCosts[j - 1]; //cost of lauching production at j = minimal cost between 1 and j-1 + setup costs j + inventory costs from j to i
+                    for (int k = 0; k < j; k++) {
+                        tempInventory[k] = optimalInventory[j - 1][k];
+                        tempProductionQuantity[k] = optimalProductionQuantity[j - 1][k];
+                    }
+                }
+                tempCost += setupCosts[j];
+
+                //inventory costs evaluation
                 int totalUnitsOrderedAtPeriodj = 0;
                 for (int k = j; k <= i; k++) totalUnitsOrderedAtPeriodj += demand[k];
+                int currentInventory = totalUnitsOrderedAtPeriodj;
+                tempProductionQuantity[j] = totalUnitsOrderedAtPeriodj;
+                tempInventory[j] = currentInventory - demand[j];
 
-                int inventory = totalUnitsOrderedAtPeriodj;
-                for (int k = j + 1; k <= i; k++)
-                {
-                    inventory = inventory - demand[k - 1];
-                    cost += inventory * inventoryCosts[k - 1];
+                for (int k = j + 1; k <= i; k++) {
+                    currentInventory = currentInventory - demand[k - 1];
+                    tempInventory[k] = currentInventory - demand[k];
+                    tempCost += currentInventory * inventoryCosts[k - 1];
                 }
-                costs.Add(cost);
+
+                possibleCosts.Add(tempCost);
+                possibleInventories.Add(tempInventory);
+                possibleProductionQuantities.Add(tempProductionQuantity);
             }
 
-            costs.Add(minimalCosts[i - 1] + setupCosts[i]); //prise en compte du cas : on commande à la période i pour satisfaire la demande de la période i (pas de coûts de stock supplémentaires)
-            return Minimum(costs);
+            int indexOfMinimumCostCase = IndexOfMinimum(possibleCosts);
+
+            minimalCosts[i] = possibleCosts[indexOfMinimumCostCase];
+            optimalProductionQuantity[i] = possibleProductionQuantities[indexOfMinimumCostCase];
+            optimalInventory[i] = possibleInventories[indexOfMinimumCostCase];
         }
 
-        private static int Minimum(List<int> liste)
+        private static int IndexOfMinimum(List<int> liste)
         {
             if (liste.Count == 0 || liste == null) return 0;
             int min = liste[0];
-            foreach (int k in liste) if (k < min) min = k;
-            return min;
+            int index = 0;
+            for(int i = 0; i < liste.Count; i++)
+            {
+                if (liste[i] < min)
+                {
+                    min = liste[i];
+                    index = i;
+                }
+            }
+            return index;
         }
-
     }
 }

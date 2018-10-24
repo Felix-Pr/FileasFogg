@@ -46,7 +46,7 @@ namespace Algorithms
             }
         }
 
-        //lol
+        //lol : arrete stp
         private void InitializeArrays()
         {
             minimalCosts = new int[horizon];

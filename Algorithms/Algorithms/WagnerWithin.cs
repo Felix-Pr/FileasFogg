@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Algorithms
 {
-    class WagnerWithin
+    public class WagnerWithin
     {
         public readonly int[] demand;
         public readonly int[] setupCosts;

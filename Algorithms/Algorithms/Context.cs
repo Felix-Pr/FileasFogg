@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Algorithms
 {
-    class Context
+    public class Context
     {
         public int horizon { get; set; }
         public int[] demand { get; set; }

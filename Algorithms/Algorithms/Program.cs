@@ -6,7 +6,7 @@ namespace Algorithms
     {
         static void Main(string[] args)
         {
-            Context context = new Context() //Extracted context from Wagner and Withing paper (1958)
+            Context context = new Context() //Extracted context from Wagner and Within paper (1958)
                 {
                     horizon = 12,
                     demand = new int[] { 69, 29, 36, 61, 61, 26, 34, 67, 45, 67, 79, 56 },

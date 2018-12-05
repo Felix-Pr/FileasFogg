@@ -46,7 +46,6 @@ namespace Algorithms
             }
         }
 
-        //lol : arrete stp : bande de filous
         private void InitializeArrays()
         {
             minimalCosts = new int[horizon];
@@ -65,6 +64,14 @@ namespace Algorithms
             this.setupCosts = new int[] { 85, 102, 102, 101, 98, 114, 105, 86, 119, 110, 98, 114 };
             this.inventoryCosts = new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
             this.horizon = 12;
+        }
+
+        public WagnerWithin(YuanContext context)
+        {
+            this.demand = context.demand.ToArray();
+            this.setupCosts = context.setupCost.ToArray();
+            this.inventoryCosts = context.inventoryCost.ToArray();
+            this.horizon = context.T;
         }
 
         public WagnerWithin(int numberOfPeriods, int[] demand, int[] setupCosts, int[] inventoryCosts) {

@@ -9,9 +9,9 @@ namespace Algorithms
         public int T { get; set; } //horizon length
         public List<int> demand { get; set; } //demand
         public int sellingPrice { get; set; } //product price
-        public int inventoryCost { get; set; } //inventory cost
+        public List<int> inventoryCost { get; set; } //inventory cost
         public int productionCost { get; set; } //production cost
-        public int setupCost { get; set; } //setup cost
+        public List<int> setupCost { get; set; } //setup cost
         public int unitMaterialCost { get; set; } //unit raw material cost
         public int delayInPaymentFromClient { get; set; } //delay in payment from client
         public int delayInPaymentToSupplier { get; set; } //delay in payment to supplier
@@ -24,8 +24,9 @@ namespace Algorithms
             {
                 string[] columns = reader.ReadLine().Split(',');
                 string[] values = reader.ReadLine().Split(',');
-                int inventoryColumnIndex;
+                int inventoryCostColumnIndex=0;
                 int demandColumnIndex=0;
+                int setupCostColumnIndex = 0;
 
                 for(int i = 0; i<columns.Length; i++)
                 {
@@ -38,14 +39,15 @@ namespace Algorithms
                             sellingPrice = Int32.Parse(values[i]);
                             break;
                         case ("Inventory Cost"): //DETERMINER SI TABLEAU OU VALEUR UNIQUE
-                            inventoryColumnIndex = i;
-                            inventoryCost = Int32.Parse(values[i]);
+                            inventoryCostColumnIndex = i;
+                            inventoryCost = new List<int>() { Int32.Parse(values[i]) };
                             break;
                         case ("Production Cost"):
                             productionCost = Int32.Parse(values[i]);
                             break;
                         case ("Setup Cost"):
-                            setupCost = Int32.Parse(values[i]);
+                            setupCostColumnIndex = i;
+                            setupCost = new List<int> { Int32.Parse(values[i]) };
                             break;
                         case ("Unit Material Cost"):
                             unitMaterialCost = Int32.Parse(values[i]);
@@ -59,26 +61,23 @@ namespace Algorithms
                         case ("Discount Rate"): //alpha
                             alpha = Int32.Parse(values[i]);
                             break;
-                        case ("Interest Rate"): //alpha
+                        case ("Interest Rate"): //beta
                             beta = Int32.Parse(values[i]);
                             break;
-                        case ("Demand"): //alpha
+                        case ("Demand"): 
                             demandColumnIndex = i;
                             demand = new List<int>() { Int32.Parse(values[i])};
                             break;
                     }
-
-
-
-
                 }
-
-
 
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine().Split(',');
+                    var numbers = line.Length;
                     demand.Add(Int32.Parse(line[demandColumnIndex]));
+                    setupCost.Add(Int32.Parse(line[setupCostColumnIndex]));
+                    inventoryCost.Add(Int32.Parse(line[inventoryCostColumnIndex]));
                 }
             }
 

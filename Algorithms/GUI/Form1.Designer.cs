@@ -28,38 +28,39 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea7 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea8 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea9 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.richTextBox = new System.Windows.Forms.RichTextBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.loadFromFileButton = new System.Windows.Forms.Button();
+            this.wagnerWhitinButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.SuspendLayout();
             // 
             // chart1
             // 
             this.chart1.AccessibleName = "Chart";
-            chartArea1.Name = "ChartArea1";
-            chartArea2.Name = "ChartArea2";
-            chartArea3.Name = "ChartArea3";
-            this.chart1.ChartAreas.Add(chartArea1);
-            this.chart1.ChartAreas.Add(chartArea2);
-            this.chart1.ChartAreas.Add(chartArea3);
-            legend1.Name = "Legend1";
-            this.chart1.Legends.Add(legend1);
-            this.chart1.Location = new System.Drawing.Point(0, -2);
+            chartArea7.Name = "ChartArea1";
+            chartArea8.Name = "ChartArea2";
+            chartArea9.Name = "ChartArea3";
+            this.chart1.ChartAreas.Add(chartArea7);
+            this.chart1.ChartAreas.Add(chartArea8);
+            this.chart1.ChartAreas.Add(chartArea9);
+            legend3.Name = "Legend1";
+            this.chart1.Legends.Add(legend3);
+            this.chart1.Location = new System.Drawing.Point(28, 109);
             this.chart1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.chart1.Name = "chart1";
-            this.chart1.Size = new System.Drawing.Size(1202, 695);
+            this.chart1.Size = new System.Drawing.Size(498, 577);
             this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
             // 
             // richTextBox
             // 
-            this.richTextBox.Location = new System.Drawing.Point(628, 63);
+            this.richTextBox.Location = new System.Drawing.Point(533, 109);
             this.richTextBox.Name = "richTextBox";
             this.richTextBox.ReadOnly = true;
             this.richTextBox.Size = new System.Drawing.Size(512, 577);
@@ -73,7 +74,7 @@
             // 
             // loadFromFileButton
             // 
-            this.loadFromFileButton.Location = new System.Drawing.Point(83, 63);
+            this.loadFromFileButton.Location = new System.Drawing.Point(28, 14);
             this.loadFromFileButton.Name = "loadFromFileButton";
             this.loadFromFileButton.Size = new System.Drawing.Size(210, 46);
             this.loadFromFileButton.TabIndex = 2;
@@ -81,11 +82,22 @@
             this.loadFromFileButton.UseVisualStyleBackColor = true;
             this.loadFromFileButton.Click += new System.EventHandler(this.loadFromFileButton_Click);
             // 
+            // wagnerWhitinButton
+            // 
+            this.wagnerWhitinButton.Location = new System.Drawing.Point(265, 14);
+            this.wagnerWhitinButton.Name = "wagnerWhitinButton";
+            this.wagnerWhitinButton.Size = new System.Drawing.Size(210, 56);
+            this.wagnerWhitinButton.TabIndex = 4;
+            this.wagnerWhitinButton.Text = "Calculate Planning with Wagner Whitin";
+            this.wagnerWhitinButton.UseVisualStyleBackColor = true;
+            this.wagnerWhitinButton.Click += new System.EventHandler(this.wagnerWhitinButton_Click);
+            // 
             // WagnerWithinVisualisation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1200, 692);
+            this.ClientSize = new System.Drawing.Size(1079, 750);
+            this.Controls.Add(this.wagnerWhitinButton);
             this.Controls.Add(this.loadFromFileButton);
             this.Controls.Add(this.richTextBox);
             this.Controls.Add(this.chart1);
@@ -104,6 +116,7 @@
         private System.Windows.Forms.RichTextBox richTextBox;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Button loadFromFileButton;
+        private System.Windows.Forms.Button wagnerWhitinButton;
     }
 }
 

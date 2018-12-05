@@ -1,5 +1,6 @@
 ﻿using Algorithms;
 using System;
+using System.Text;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -79,6 +80,9 @@ namespace GUI
         private void openFileDialog1_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
             context = new YuanContext(openFileDialog1.FileName);
+
+            wagnerWhitinButton.Enabled = true;
+
             richTextBox.AppendText("Horizon : " + context.T);
             richTextBox.AppendText("\n");
             richTextBox.AppendText("Inventory Cost : " + context.inventoryCost);
@@ -101,7 +105,6 @@ namespace GUI
             richTextBox.AppendText("\n");
             richTextBox.AppendText("Demand : ");
             foreach (int d in context.demand) richTextBox.AppendText(d + ", ");
-            
 
 
         }
@@ -122,6 +125,39 @@ namespace GUI
             for (int i = 1; i <= context.T; i++) richTextBox.AppendText("Inventory at period " + i + " : " + w.OptimalInventory[i - 1]+ "\n");
 
             ShowWagnerWhitinResults();
+            exportResultsButton.Enabled = true;
+        }
+
+        private void exportResultsButton_Click(object sender, EventArgs e)
+        {
+            exportResultsDialog.ShowDialog();
+        }
+
+        private string ConvertResultsIntoCsvString()
+        {
+            StringBuilder s = new StringBuilder();
+            s.Append("Period");
+            for (int i = 1; i < context.T; i++) s.Append("," + i);
+            s.Append("\n");
+            s.Append("Production");
+            for (int i = 1; i < context.T; i++) s.Append("," + optimalProductionQuantity[i - 1]);
+            s.Append("\n");
+            s.Append("Costs");
+            for (int i = 1; i < context.T; i++) s.Append("," + minimalCosts[i - 1]);
+            s.Append("\n");
+            s.Append("Inventory");
+            for (int i = 1; i < context.T; i++) s.Append("," + optimalInventory[i - 1]);
+
+            return s.ToString();
+        }
+
+        private void exportResultsDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            using (System.IO.StreamWriter file =
+            new System.IO.StreamWriter(exportResultsDialog.FileName))
+            {
+                file.Write(ConvertResultsIntoCsvString());
+            }
         }
     }
 }

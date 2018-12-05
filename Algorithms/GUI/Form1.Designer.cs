@@ -37,6 +37,8 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.loadFromFileButton = new System.Windows.Forms.Button();
             this.wagnerWhitinButton = new System.Windows.Forms.Button();
+            this.exportResultsButton = new System.Windows.Forms.Button();
+            this.exportResultsDialog = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -84,6 +86,7 @@
             // 
             // wagnerWhitinButton
             // 
+            this.wagnerWhitinButton.Enabled = false;
             this.wagnerWhitinButton.Location = new System.Drawing.Point(265, 14);
             this.wagnerWhitinButton.Name = "wagnerWhitinButton";
             this.wagnerWhitinButton.Size = new System.Drawing.Size(210, 56);
@@ -92,11 +95,28 @@
             this.wagnerWhitinButton.UseVisualStyleBackColor = true;
             this.wagnerWhitinButton.Click += new System.EventHandler(this.wagnerWhitinButton_Click);
             // 
+            // exportResultsButton
+            // 
+            this.exportResultsButton.Enabled = false;
+            this.exportResultsButton.Location = new System.Drawing.Point(533, 14);
+            this.exportResultsButton.Name = "exportResultsButton";
+            this.exportResultsButton.Size = new System.Drawing.Size(164, 56);
+            this.exportResultsButton.TabIndex = 5;
+            this.exportResultsButton.Text = "Export Results";
+            this.exportResultsButton.UseVisualStyleBackColor = true;
+            this.exportResultsButton.Click += new System.EventHandler(this.exportResultsButton_Click);
+            // 
+            // exportResultsDialog
+            // 
+            this.exportResultsDialog.DefaultExt = "csv";
+            this.exportResultsDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.exportResultsDialog_FileOk);
+            // 
             // WagnerWithinVisualisation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1079, 750);
+            this.Controls.Add(this.exportResultsButton);
             this.Controls.Add(this.wagnerWhitinButton);
             this.Controls.Add(this.loadFromFileButton);
             this.Controls.Add(this.richTextBox);
@@ -117,6 +137,8 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Button loadFromFileButton;
         private System.Windows.Forms.Button wagnerWhitinButton;
+        private System.Windows.Forms.Button exportResultsButton;
+        private System.Windows.Forms.SaveFileDialog exportResultsDialog;
     }
 }
 

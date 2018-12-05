@@ -137,16 +137,16 @@ namespace GUI
         {
             StringBuilder s = new StringBuilder();
             s.Append("Period");
-            for (int i = 1; i < context.T; i++) s.Append("," + i);
+            for (int i = 1; i <= context.T; i++) s.Append("," + i);
             s.Append("\n");
             s.Append("Production");
-            for (int i = 1; i < context.T; i++) s.Append("," + optimalProductionQuantity[i - 1]);
+            for (int i = 1; i <= context.T; i++) s.Append("," + optimalProductionQuantity[i - 1]);
             s.Append("\n");
             s.Append("Costs");
-            for (int i = 1; i < context.T; i++) s.Append("," + minimalCosts[i - 1]);
+            for (int i = 1; i <= context.T; i++) s.Append("," + minimalCosts[i - 1]);
             s.Append("\n");
             s.Append("Inventory");
-            for (int i = 1; i < context.T; i++) s.Append("," + optimalInventory[i - 1]);
+            for (int i = 1; i <= context.T; i++) s.Append("," + optimalInventory[i - 1]);
 
             return s.ToString();
         }

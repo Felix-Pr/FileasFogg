@@ -85,9 +85,11 @@ namespace GUI
 
             richTextBox.AppendText("Horizon : " + context.T);
             richTextBox.AppendText("\n");
-            richTextBox.AppendText("Inventory Cost : " + context.inventoryCost);
+            richTextBox.AppendText("Inventory Cost : ");
+            foreach (int i in context.inventoryCost) richTextBox.AppendText(i + ", ");
             richTextBox.AppendText("\n");
-            richTextBox.AppendText("Setup Cost : " + context.setupCost);
+            richTextBox.AppendText("Setup Cost : ");
+            foreach (int s in context.setupCost) richTextBox.AppendText(s + ", ");
             richTextBox.AppendText("\n");
             richTextBox.AppendText("Production Cost : " + context.productionCost);
             richTextBox.AppendText("\n");
@@ -157,6 +159,32 @@ namespace GUI
             new System.IO.StreamWriter(exportResultsDialog.FileName))
             {
                 file.Write(ConvertResultsIntoCsvString());
+            }
+        }
+
+        private void generateCsvTemplateButton_Click(object sender, EventArgs e)
+        {
+            generateCsvTemplateDialog.ShowDialog();
+        }
+
+        private void generateCsvTemplateDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            using (System.IO.StreamWriter file =
+            new System.IO.StreamWriter(generateCsvTemplateDialog.FileName))
+            {
+                file.WriteLine("Horizon,Demand,Inventory Cost,Setup Cost,Production Cost,Unit Material Cost,Delay in payment to Supplier,Delay in payment from Client,Discount Rate,Interest Rate");
+                file.WriteLine("12,69,1,85,1,3,1,1,1,1");
+                file.WriteLine(",29,1,102,,,,,,");
+                file.WriteLine(",36,1,102,,,,,,");
+                file.WriteLine(",61,1,101,,,,,,");
+                file.WriteLine(",61,1,98,,,,,,");
+                file.WriteLine(",26,1,114,,,,,,");
+                file.WriteLine(",34,1,105,,,,,,");
+                file.WriteLine(",67,1,86,,,,,,");
+                file.WriteLine(",45,1,119,,,,,,");
+                file.WriteLine(",67,1,110,,,,,,");
+                file.WriteLine(",79,1,98,,,,,,");
+                file.WriteLine(",56,1,114,,,,,,");
             }
         }
     }

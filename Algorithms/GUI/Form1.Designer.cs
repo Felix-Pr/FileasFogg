@@ -39,6 +39,8 @@
             this.wagnerWhitinButton = new System.Windows.Forms.Button();
             this.exportResultsButton = new System.Windows.Forms.Button();
             this.exportResultsDialog = new System.Windows.Forms.SaveFileDialog();
+            this.generateCsvTemplateButton = new System.Windows.Forms.Button();
+            this.generateCsvTemplateDialog = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -78,7 +80,7 @@
             // 
             this.loadFromFileButton.Location = new System.Drawing.Point(28, 14);
             this.loadFromFileButton.Name = "loadFromFileButton";
-            this.loadFromFileButton.Size = new System.Drawing.Size(210, 46);
+            this.loadFromFileButton.Size = new System.Drawing.Size(265, 56);
             this.loadFromFileButton.TabIndex = 2;
             this.loadFromFileButton.Text = "Load from File";
             this.loadFromFileButton.UseVisualStyleBackColor = true;
@@ -87,7 +89,7 @@
             // wagnerWhitinButton
             // 
             this.wagnerWhitinButton.Enabled = false;
-            this.wagnerWhitinButton.Location = new System.Drawing.Point(265, 14);
+            this.wagnerWhitinButton.Location = new System.Drawing.Point(533, 14);
             this.wagnerWhitinButton.Name = "wagnerWhitinButton";
             this.wagnerWhitinButton.Size = new System.Drawing.Size(210, 56);
             this.wagnerWhitinButton.TabIndex = 4;
@@ -98,7 +100,7 @@
             // exportResultsButton
             // 
             this.exportResultsButton.Enabled = false;
-            this.exportResultsButton.Location = new System.Drawing.Point(533, 14);
+            this.exportResultsButton.Location = new System.Drawing.Point(773, 14);
             this.exportResultsButton.Name = "exportResultsButton";
             this.exportResultsButton.Size = new System.Drawing.Size(164, 56);
             this.exportResultsButton.TabIndex = 5;
@@ -111,11 +113,27 @@
             this.exportResultsDialog.DefaultExt = "csv";
             this.exportResultsDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.exportResultsDialog_FileOk);
             // 
+            // generateCsvTemplateButton
+            // 
+            this.generateCsvTemplateButton.Location = new System.Drawing.Point(320, 15);
+            this.generateCsvTemplateButton.Name = "generateCsvTemplateButton";
+            this.generateCsvTemplateButton.Size = new System.Drawing.Size(188, 55);
+            this.generateCsvTemplateButton.TabIndex = 7;
+            this.generateCsvTemplateButton.Text = "Generate Csv Template";
+            this.generateCsvTemplateButton.UseVisualStyleBackColor = true;
+            this.generateCsvTemplateButton.Click += new System.EventHandler(this.generateCsvTemplateButton_Click);
+            // 
+            // generateCsvTemplateDialog
+            // 
+            this.generateCsvTemplateDialog.DefaultExt = "csv";
+            this.generateCsvTemplateDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.generateCsvTemplateDialog_FileOk);
+            // 
             // WagnerWithinVisualisation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1079, 750);
+            this.Controls.Add(this.generateCsvTemplateButton);
             this.Controls.Add(this.exportResultsButton);
             this.Controls.Add(this.wagnerWhitinButton);
             this.Controls.Add(this.loadFromFileButton);
@@ -139,6 +157,8 @@
         private System.Windows.Forms.Button wagnerWhitinButton;
         private System.Windows.Forms.Button exportResultsButton;
         private System.Windows.Forms.SaveFileDialog exportResultsDialog;
+        private System.Windows.Forms.Button generateCsvTemplateButton;
+        private System.Windows.Forms.SaveFileDialog generateCsvTemplateDialog;
     }
 }
 

@@ -6,16 +6,16 @@ namespace Algorithms
     public class WagnerWithin
     {
         public readonly int[] demand;
-        public readonly int[] setupCosts;
-        public readonly int[] inventoryCosts;
+        public readonly double[] setupCosts;
+        public readonly double[] inventoryCosts;
         public readonly int horizon;
 
         //output variables
-        private int[] minimalCosts;//minimum production costs for plannings from period 1 to i
+        private double[] minimalCosts;//minimum production costs for plannings from period 1 to i
         private int[][] optimalProductionQuantity;//production plans for plannings from period 1 to i
         private int[][] optimalInventory;//inventory for plannings from periods 1 to i
 
-        public int[] MinimalCosts {
+        public double[] MinimalCosts {
             get {
                 if (minimalCosts == null) {
                     ComputeProductionPlan();
@@ -48,7 +48,7 @@ namespace Algorithms
 
         private void InitializeArrays()
         {
-            minimalCosts = new int[horizon];
+            minimalCosts = new double[horizon];
             optimalProductionQuantity = new int[horizon][];
             optimalInventory = new int[horizon][];
 
@@ -61,31 +61,24 @@ namespace Algorithms
 
         public WagnerWithin() {
             this.demand = new int[] { 69, 29, 36, 61, 61, 26, 34, 67, 45, 67, 79, 56 };
-            this.setupCosts = new int[] { 85, 102, 102, 101, 98, 114, 105, 86, 119, 110, 98, 114 };
-            this.inventoryCosts = new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+            this.setupCosts = new double[] { 85, 102, 102, 101, 98, 114, 105, 86, 119, 110, 98, 114 };
+            this.inventoryCosts = new double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
             this.horizon = 12;
         }
 
         public WagnerWithin(YuanContext context)
         {
             this.demand = context.demand.ToArray();
-            this.setupCosts = context.setupCost.ToArray();
-            this.inventoryCosts = context.inventoryCost.ToArray();
-            this.horizon = context.T;
+            this.setupCosts = context.setupCosts.ToArray();
+            this.inventoryCosts = context.inventoryCosts.ToArray();
+            this.horizon = context.horizon;
         }
 
-        public WagnerWithin(int numberOfPeriods, int[] demand, int[] setupCosts, int[] inventoryCosts) {
+        public WagnerWithin(int numberOfPeriods, int[] demand, double[] setupCosts, double[] inventoryCosts) {
             this.demand = demand;
             this.setupCosts = setupCosts;
             this.inventoryCosts = inventoryCosts;
             this.horizon = numberOfPeriods;
-        }
-
-        public WagnerWithin(Context context) {
-            this.demand = context.demand;
-            this.setupCosts = context.setupCosts;
-            this.inventoryCosts = context.inventoryCosts;
-            this.horizon = context.horizon;
         }
 
         public void ComputeProductionPlan()
@@ -104,7 +97,7 @@ namespace Algorithms
                 optimalProductionQuantity[0][0] = demand[0];
             }
 
-            List<int> possibleCosts = new List<int>(); //i possible costs for satisfying demand by launching production at period j, 1<=j<=i
+            List<double> possibleCosts = new List<double>(); //i possible costs for satisfying demand by launching production at period j, 1<=j<=i
             List<int[]> possibleInventories = new List<int[]>();
             List<int[]> possibleProductionQuantities = new List<int[]>();
 
@@ -112,7 +105,7 @@ namespace Algorithms
             //cost and production plan evaluation if production is launched at period j to satisfy demand at period i
             for (int j = 0; j <= i; j++) {
 
-                int tempCost = 0; 
+                double tempCost = 0; 
                 int[] tempInventory = new int[i + 1]; 
                 int[] tempProductionQuantity = new int[i + 1]; 
 
@@ -151,10 +144,10 @@ namespace Algorithms
             optimalInventory[i] = possibleInventories[indexOfMinimumCostCase];
         }
 
-        private static int IndexOfMinimum(List<int> liste)
+        private static int IndexOfMinimum(List<double> liste)
         {
             if (liste.Count == 0 || liste == null) return 0;
-            int min = liste[0];
+            double min = liste[0];
             int index = 0;
             for(int i = 0; i < liste.Count; i++)
             {

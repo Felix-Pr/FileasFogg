@@ -1,22 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Forms;
 
 namespace Algorithms
 {
     public class YuanContext
     {
-        public int T { get; set; } //horizon length
+        public int horizon { get; set; } //horizon length
         public List<int> demand { get; set; } //demand
-        public int sellingPrice { get; set; } //product price
-        public List<int> inventoryCost { get; set; } //inventory cost
-        public int productionCost { get; set; } //production cost
-        public List<int> setupCost { get; set; } //setup cost
-        public int unitMaterialCost { get; set; } //unit raw material cost
+        public double sellingPrice { get; set; } //product price
+        public List<double> inventoryCosts { get; set; } //inventory cost
+        public double productionCost { get; set; } //production cost
+        public List<double> setupCosts { get; set; } //setup cost
+        public double unitMaterialCost { get; set; } //unit raw material cost
         public int delayInPaymentFromClient { get; set; } //delay in payment from client
         public int delayInPaymentToSupplier { get; set; } //delay in payment to supplier
-        public int alpha { get; set; } //discount rate per period
-        public int beta { get; set; } //interest rate for financing OWCR per period
+        public double alpha { get; set; } //discount rate per period
+        public double beta { get; set; } //interest rate for financing OWCR per period
+
+        public YuanContext() { }
 
         public YuanContext(string fileName)
         {
@@ -33,40 +36,40 @@ namespace Algorithms
                     switch (columns[i])
                     {
                         case ("Horizon"):
-                            T = Int32.Parse(values[i]);
+                            horizon = int.Parse(values[i]);
                             break;
                         case ("Selling Price"):
-                            sellingPrice = Int32.Parse(values[i]);
+                            sellingPrice = int.Parse(values[i]);
                             break;
                         case ("Inventory Cost"): //DETERMINER SI TABLEAU OU VALEUR UNIQUE
                             inventoryCostColumnIndex = i;
-                            inventoryCost = new List<int>() { Int32.Parse(values[i]) };
+                            inventoryCosts = new List<double>() { double.Parse(values[i]) };
                             break;
                         case ("Production Cost"):
-                            productionCost = Int32.Parse(values[i]);
+                            productionCost = int.Parse(values[i]);
                             break;
                         case ("Setup Cost"):
                             setupCostColumnIndex = i;
-                            setupCost = new List<int> { Int32.Parse(values[i]) };
+                            setupCosts = new List<double> { double.Parse(values[i]) };
                             break;
                         case ("Unit Material Cost"):
-                            unitMaterialCost = Int32.Parse(values[i]);
+                            unitMaterialCost = int.Parse(values[i]);
                             break;
                         case ("Delay in payment to Supplier"):
-                            delayInPaymentToSupplier = Int32.Parse(values[i]);
+                            delayInPaymentToSupplier = int.Parse(values[i]);
                             break;
                         case ("Delay in payment from Client"):
-                            delayInPaymentFromClient = Int32.Parse(values[i]);
+                            delayInPaymentFromClient = int.Parse(values[i]);
                             break;
                         case ("Discount Rate"): //alpha
-                            alpha = Int32.Parse(values[i]);
+                            alpha = int.Parse(values[i]);
                             break;
                         case ("Interest Rate"): //beta
-                            beta = Int32.Parse(values[i]);
+                            beta = int.Parse(values[i]);
                             break;
                         case ("Demand"): 
                             demandColumnIndex = i;
-                            demand = new List<int>() { Int32.Parse(values[i])};
+                            demand = new List<int>() { int.Parse(values[i])};
                             break;
                     }
                 }
@@ -75,15 +78,35 @@ namespace Algorithms
                 {
                     var line = reader.ReadLine().Split(',');
                     var numbers = line.Length;
-                    demand.Add(Int32.Parse(line[demandColumnIndex]));
-                    setupCost.Add(Int32.Parse(line[setupCostColumnIndex]));
-                    inventoryCost.Add(Int32.Parse(line[inventoryCostColumnIndex]));
+                    demand.Add(int.Parse(line[demandColumnIndex]));
+                    setupCosts.Add(int.Parse(line[setupCostColumnIndex]));
+                    inventoryCosts.Add(int.Parse(line[inventoryCostColumnIndex]));
                 }
             }
-
         }
 
+        public YuanContext(DataGridView constantsDataGridView, DataGridView variablesDataGridView)
+        {
+            alpha = double.Parse(constantsDataGridView.Rows[0].Cells["Alpha"].Value.ToString());
+            beta = double.Parse(constantsDataGridView.Rows[0].Cells["Beta"].Value.ToString());
+            delayInPaymentFromClient = int.Parse(constantsDataGridView.Rows[0].Cells["Delay in Payment from Client"].Value.ToString());
+            delayInPaymentToSupplier = int.Parse(constantsDataGridView.Rows[0].Cells["Delay in Payment to Supplier"].Value.ToString());
+            unitMaterialCost = double.Parse(constantsDataGridView.Rows[0].Cells["Unit Material Cost"].Value.ToString());
+            productionCost = double.Parse(constantsDataGridView.Rows[0].Cells["Production Cost"].Value.ToString());
+            sellingPrice = double.Parse(constantsDataGridView.Rows[0].Cells["Selling Price"].Value.ToString());
+            horizon = int.Parse(constantsDataGridView.Rows[0].Cells["Horizon"].Value.ToString());
 
+            setupCosts = new List<double>(horizon);
+            inventoryCosts = new List<double>(horizon);
+            demand = new List<int>(horizon);
 
+            for (int i = 1; i<=horizon; i++)
+            {
+                inventoryCosts.Add(double.Parse(variablesDataGridView.Rows[i-1].Cells["Inventory Costs"].Value.ToString()));
+                demand.Add(int.Parse(variablesDataGridView.Rows[i-1].Cells["Demand"].Value.ToString()));
+                setupCosts.Add(double.Parse(variablesDataGridView.Rows[i-1].Cells["Setup Costs"].Value.ToString()));
+            };
+
+        }
     }
 }

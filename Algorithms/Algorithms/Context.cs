@@ -10,14 +10,14 @@ namespace Algorithms
     {
         public int horizon { get; set; }
         public int[] demand { get; set; }
-        public int[] setupCosts { get; set; }
-        public int[] inventoryCosts { get; set; }
-        public int unitProductPrice{ get; set; }
-        public int unitProductionCost{ get; set; }
+        public double[] setupCosts { get; set; }
+        public double[] inventoryCosts { get; set; }
+        public double unitProductPrice { get; set; }
+        public double unitProductionCost { get; set; }
         public int delayOfPaymentFromClient{ get; set; }
         public int delayOfPaymentToSupplier{ get; set; }
-        public int discountRatePerPeriod{ get; set; }
-        public int interestRatePerPeriod{ get; set; }
+        public double discountRatePerPeriod { get; set; }
+        public double interestRatePerPeriod { get; set; }
         public int productionCapacity { get; set; } //0 = infinite capacity
 
         public Context(){ }

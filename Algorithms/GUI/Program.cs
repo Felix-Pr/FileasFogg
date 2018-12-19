@@ -15,7 +15,7 @@ namespace GUI
         [STAThread]
         static void Main(string[] args)
         {
-            Context context = new Context() //Extracted context from Wagner and Whitin paper (1958)
+            /*Context context = new Context() //Extracted context from Wagner and Whitin paper (1958)
             {
                 horizon = 12,
                 demand = new int[] { 69, 29, 36, 61, 61, 26, 34, 67, 45, 67, 79, 56 },
@@ -24,10 +24,10 @@ namespace GUI
             };
 
             WagnerWithin w = new WagnerWithin(context);
-
+            */
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new WagnerWithinVisualisation(w.MinimalCosts, w.OptimalProductionQuantity, w.OptimalInventory));
+            Application.Run(new PhileasFogg());
         }
     }
 }

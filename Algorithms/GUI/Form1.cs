@@ -1,167 +1,312 @@
 ﻿using Algorithms;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
 
 namespace GUI
 {
-    public partial class WagnerWithinVisualisation : Form
+    public partial class PhileasFogg : Form
     {
-        private int[] minimalCosts;
-        private int[] optimalProductionQuantity;
-        private int[] optimalInventory;
+        private static int initialHorizonLength = 6;
 
-        private YuanContext context ;
+        private double[] minimalCosts = new double[initialHorizonLength];
+        private int[] optimalProductionQuantity = new int[initialHorizonLength];
+        private int[] optimalInventory = new int[initialHorizonLength];
 
-        public WagnerWithinVisualisation(int[] minimalCosts, int[] optimalProductionQuantity, int[] optimalInventory)
-        {
-            InitializeComponent();
-            this.minimalCosts = minimalCosts;
-            this.optimalInventory = optimalInventory;
-            this.optimalProductionQuantity = optimalProductionQuantity;
-        }
-        public WagnerWithinVisualisation(WagnerWithin w)
-        {
-            InitializeComponent();
-            this.minimalCosts = w.MinimalCosts;
-            this.optimalInventory = w.OptimalInventory;
-            this.optimalProductionQuantity = w.OptimalProductionQuantity;
-        }
+        private Queue<DataGridViewRow> deletedRows = new Queue<DataGridViewRow>();
 
-        private void Form1_Load(object sender, EventArgs e)
+        private readonly DataGridViewRow firstRow = new DataGridViewRow();
+
+        private YuanContext context;
+
+        public PhileasFogg() { InitializeComponent(); }
+
+
+        private void PhileasFogg_Load(object sender, EventArgs e)
         {
+            GenerateColumns();
+            constantsDataGrid.Rows.Add(new DataGridViewRow());
+            constantsDataGrid.Rows[0].SetValues(initialHorizonLength);
         }
 
-        private void ShowWagnerWhitinResults()
+        private void GenerateColumns()
         {
-
-            chart1.Titles.Add("Wagner Within Algorithm Result");
-
-            var Costs = new Series
+            DataGridViewTextBoxColumn horizon = new DataGridViewTextBoxColumn()
             {
-                Name = "Costs",
-                ChartType = SeriesChartType.Column,
-                ChartArea = "ChartArea1"
+                ValueType = typeof(int),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                Name = "Horizon",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             };
-            var Production = new Series
+            DataGridViewTextBoxColumn sellingPrice = new DataGridViewTextBoxColumn()
             {
-                Name = "Production",
-                ChartType = SeriesChartType.Column,
-                ChartArea = "ChartArea2"
+                ValueType = typeof(double),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                Name = "Selling Price"
             };
-            var Inventory = new Series
+            DataGridViewTextBoxColumn productionCost = new DataGridViewTextBoxColumn()
             {
-                Name = "Inventory",
-                ChartType = SeriesChartType.Column,
-                ChartArea = "ChartArea3",
+                ValueType = typeof(double),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                Name = "Production Cost"
+            };
+            DataGridViewTextBoxColumn unitMaterialCost = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(double),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                Name = "Unit Material Cost"
+            };
+            DataGridViewTextBoxColumn delayInPaymentFromClient = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(int),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                Name = "Delay in Payment from Client"
+            };
+            DataGridViewTextBoxColumn delayInPaymentToSupplier = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(int),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                Name = "Delay in Payment to Supplier"
+            };
+            DataGridViewTextBoxColumn alpha = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(double),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                Name = "Alpha"
+            };
+            DataGridViewTextBoxColumn beta = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(double),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                Name = "Beta"
+            };
+
+            constantsDataGrid.Columns.AddRange(
+               horizon,
+               productionCost,
+               sellingPrice,
+               unitMaterialCost,
+               delayInPaymentFromClient,
+               delayInPaymentToSupplier,
+               alpha,
+               beta);
+
+            DataGridViewTextBoxColumn period = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(int),
+                Name = "Period",
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                ReadOnly = true,
+
 
             };
-
-            for (int i = 1; i <= minimalCosts.Length; i++)
+            DataGridViewTextBoxColumn demand = new DataGridViewTextBoxColumn()
             {
-                Costs.Points.AddXY(i, minimalCosts[i - 1]);
-                Production.Points.AddXY(i, optimalProductionQuantity[i - 1]);
-                Inventory.Points.AddXY(i, optimalInventory[i - 1]);
+                ValueType = typeof(int),
+                Name = "Demand",
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            };
+            DataGridViewTextBoxColumn inventoryCosts = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(double),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                Name = "Inventory Costs"
+            };
+            DataGridViewTextBoxColumn setupCosts = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(double),
+                Name = "Setup Costs",
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            };
+
+
+            variablesDataGrid.Columns.AddRange(period, demand, inventoryCosts, setupCosts);
+
+            DataGridViewTextBoxColumn resultPeriod = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(int),
+                Name = "Period"
+            };
+            DataGridViewTextBoxColumn productionQuantity = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(int),
+                Name = "Production Quantity",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            };
+            DataGridViewTextBoxColumn inventory = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(int),
+                Name = "Inventory"
+            };
+            DataGridViewTextBoxColumn costs = new DataGridViewTextBoxColumn()
+            {
+                ValueType = typeof(double),
+                Name = "Costs"
+            };
+            resultsDataGrid.Columns.AddRange(resultPeriod, productionQuantity, inventory, costs);
+
+        }
+
+        private void LoadDataGrid(object[] constantRow, List<object[]> variableRows)
+        {
+            constantsDataGrid.Rows.Clear();
+            variablesDataGrid.Rows.Clear();
+            constantsDataGrid.Rows.Add(CreateConstantsRow(constantRow));
+            foreach (object[] row in variableRows) variablesDataGrid.Rows.Add(CreateVariableRow(row));
+        }
+
+        private void LoadDataGrid(string filePath)
+        {
+            object[] constantRow = new object[8];
+            List<object[]> variableRows = new List<object[]>();
+
+            using (var reader = new StreamReader(filePath))
+            {
+                reader.ReadLine(); //Header row
+                int period = 1;
+                object[] firstRow = reader.ReadLine().Split(',');
+
+                constantRow = SubArray(firstRow, 3, 8);
+                object[] variableRow = new object[4];
+                variableRow[0] = period;
+                SubArray(firstRow, 0, 3).CopyTo(variableRow, 1);
+                variableRows.Add(variableRow);
+
+                while (!reader.EndOfStream)
+                {
+                    period++;
+                    variableRow = new object[4];
+                    variableRow[0] = period;
+                    SubArray(reader.ReadLine().Split(','), 0, 3).CopyTo(variableRow, 1);
+                    variableRows.Add(variableRow);
+                }
             }
 
-            chart1.Series.Add(Costs);
-            chart1.Series.Add(Production);
-            chart1.Series.Add(Inventory);
-
-            chart1.Invalidate();
-            chart1.Visible = true;
-        }
-        private void loadFromFileButton_Click(object sender, EventArgs e)
-        {
-            openFileDialog1.ShowDialog();
-        }
-
-        private void openFileDialog1_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            context = new YuanContext(openFileDialog1.FileName);
-
-            wagnerWhitinButton.Enabled = true;
-
-            richTextBox.AppendText("Horizon : " + context.T);
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("Inventory Cost : ");
-            foreach (int i in context.inventoryCost) richTextBox.AppendText(i + ", ");
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("Setup Cost : ");
-            foreach (int s in context.setupCost) richTextBox.AppendText(s + ", ");
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("Production Cost : " + context.productionCost);
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("Unit Material Cost : " + context.productionCost);
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("Discount Rate : " + context.alpha);
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("Interest Rate : " + context.beta);
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("Selling Price : " + context.sellingPrice);
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("Delay in payment from Client : " + context.delayInPaymentFromClient);
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("Delay in payment to Supplier : " + context.delayInPaymentToSupplier);
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("Demand : ");
-            foreach (int d in context.demand) richTextBox.AppendText(d + ", ");
-
+            LoadDataGrid(constantRow, variableRows);
 
         }
 
-        private void wagnerWhitinButton_Click(object sender, EventArgs e)
+        private static T[] SubArray<T>(T[] data, int index, int length)
         {
-            WagnerWithin w = new WagnerWithin(context);
-
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("Wagner Whitin Algorithm results :");
-            richTextBox.AppendText("\n");
-            richTextBox.AppendText("\n");
-            for (int i = 1; i <= context.T; i++) richTextBox.AppendText("Minimum costs from period 1 to " + i + " : " + w.MinimalCosts[i - 1]+"\n");
-            richTextBox.AppendText("\n");
-            for (int i = 1; i <= context.T; i++) richTextBox.AppendText("Production at period " + i + " : " + w.OptimalProductionQuantity[i - 1]+"\n");
-            richTextBox.AppendText("\n");
-            for (int i = 1; i <= context.T; i++) richTextBox.AppendText("Inventory at period " + i + " : " + w.OptimalInventory[i - 1]+ "\n");
-
-            ShowWagnerWhitinResults();
-            exportResultsButton.Enabled = true;
+            T[] result = new T[length];
+            Array.Copy(data, index, result, 0, length);
+            return result;
         }
 
-        private void exportResultsButton_Click(object sender, EventArgs e)
+        private DataGridViewRow CreateConstantsRow(object[] row)
         {
-            exportResultsDialog.ShowDialog();
+            DataGridViewRow dataRow = new DataGridViewRow();
+            dataRow.CreateCells(constantsDataGrid);
+            dataRow.SetValues(row);
+
+            return dataRow;
+        }
+        private DataGridViewRow CreateResultsRow(object[] row)
+        {
+            DataGridViewRow dataRow = new DataGridViewRow();
+            dataRow.CreateCells(resultsDataGrid);
+            dataRow.SetValues(row);
+
+            return dataRow;
+        }
+        private DataGridViewRow CreateVariableRow(object[] row)
+        {
+            DataGridViewRow dataRow = new DataGridViewRow();
+            dataRow.CreateCells(variablesDataGrid);
+            dataRow.SetValues(row);
+
+            return dataRow;
         }
 
         private string ConvertResultsIntoCsvString()
         {
             StringBuilder s = new StringBuilder();
             s.Append("Period");
-            for (int i = 1; i <= context.T; i++) s.Append("," + i);
+            for (int i = 1; i <= context.horizon; i++) s.Append("," + i);
             s.Append("\n");
             s.Append("Production");
-            for (int i = 1; i <= context.T; i++) s.Append("," + optimalProductionQuantity[i - 1]);
+            for (int i = 1; i <= context.horizon; i++) s.Append("," + optimalProductionQuantity[i - 1]);
             s.Append("\n");
             s.Append("Costs");
-            for (int i = 1; i <= context.T; i++) s.Append("," + minimalCosts[i - 1]);
+            for (int i = 1; i <= context.horizon; i++) s.Append("," + minimalCosts[i - 1]);
             s.Append("\n");
             s.Append("Inventory");
-            for (int i = 1; i <= context.T; i++) s.Append("," + optimalInventory[i - 1]);
+            for (int i = 1; i <= context.horizon; i++) s.Append("," + optimalInventory[i - 1]);
 
             return s.ToString();
         }
 
         private void exportResultsDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            using (System.IO.StreamWriter file =
-            new System.IO.StreamWriter(exportResultsDialog.FileName))
+            if (HasWriteAccessToFolder(Path.GetDirectoryName(exportResultsDialog.FileName)))
             {
-                file.Write(ConvertResultsIntoCsvString());
+                using (StreamWriter file = new StreamWriter(exportResultsDialog.FileName))
+                {
+                    file.Write(ConvertResultsIntoCsvString());
+                }
+            }
+            else MessageBox.Show("Write access to folder denied");
+
+        }
+
+        private void loadFromFileButton_Click(object sender, EventArgs e)
+        {
+            openFileDialog.ShowDialog();
+        }
+
+        private void openFileDialog1_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            try
+            {
+                context = new YuanContext(openFileDialog.FileName);
+            }
+            catch
+            {
+                openFileDialog.Dispose();
+                MessageBox.Show("Incorrect file completion : please make sure the template is correctly filled");
+                return;
+            }
+            deletedRows = new Queue<DataGridViewRow>();
+            LoadDataGrid(openFileDialog.FileName);
+        }
+
+        private void wagnerWhitinButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                WagnerWithin w = new WagnerWithin(new YuanContext(constantsDataGrid, variablesDataGrid));
+                minimalCosts = w.MinimalCosts;
+                optimalInventory = w.OptimalInventory;
+                optimalProductionQuantity = w.OptimalProductionQuantity;
+                ShowResults();
+                exportResultsButton.Enabled = true;
+            }
+            catch
+            {
+                MessageBox.Show("Please fill all cells");
             }
         }
 
+        private void ShowResults()
+        {
+            resultsDataGrid.Rows.Clear();
+            for (int i = 0; i < minimalCosts.Length; i++)
+            {
+                resultsDataGrid.Rows.Add(CreateResultsRow(new object[] {
+                    i+1,
+                    optimalProductionQuantity[i],
+                    optimalInventory[i],
+                    minimalCosts[i]}));
+            }
+        }
+
+        private void exportResultsButton_Click(object sender, EventArgs e)
+        {
+            exportResultsDialog.ShowDialog();
+        }
         private void generateCsvTemplateButton_Click(object sender, EventArgs e)
         {
             generateCsvTemplateDialog.ShowDialog();
@@ -169,23 +314,166 @@ namespace GUI
 
         private void generateCsvTemplateDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            using (System.IO.StreamWriter file =
-            new System.IO.StreamWriter(generateCsvTemplateDialog.FileName))
+            using (StreamWriter file =
+            new StreamWriter(generateCsvTemplateDialog.FileName))
             {
-                file.WriteLine("Horizon,Demand,Inventory Cost,Setup Cost,Production Cost,Unit Material Cost,Delay in payment to Supplier,Delay in payment from Client,Discount Rate,Interest Rate");
-                file.WriteLine("12,69,1,85,1,3,1,1,1,1");
-                file.WriteLine(",29,1,102,,,,,,");
-                file.WriteLine(",36,1,102,,,,,,");
-                file.WriteLine(",61,1,101,,,,,,");
-                file.WriteLine(",61,1,98,,,,,,");
-                file.WriteLine(",26,1,114,,,,,,");
-                file.WriteLine(",34,1,105,,,,,,");
-                file.WriteLine(",67,1,86,,,,,,");
-                file.WriteLine(",45,1,119,,,,,,");
-                file.WriteLine(",67,1,110,,,,,,");
-                file.WriteLine(",79,1,98,,,,,,");
-                file.WriteLine(",56,1,114,,,,,,");
+                file.WriteLine("Demand,Inventory Cost,Setup Cost,Horizon,Production Cost,Selling Price,Unit Material Cost,Delay in payment to Supplier,Delay in payment from Client,Discount Rate,Interest Rate");
+                file.WriteLine("69,1,85,12,3,10,1,1,1,1,1");
+                file.WriteLine("29,1,102,,,,,,,,");
+                file.WriteLine("36,1,102,,,,,,,,");
+                file.WriteLine("61,1,101,,,,,,,,");
+                file.WriteLine("61,1,98,,,,,,,,");
+                file.WriteLine("26,1,114,,,,,,,,");
+                file.WriteLine("34,1,105,,,,,,,,");
+                file.WriteLine("67,1,86,,,,,,,,");
+                file.WriteLine("45,1,119,,,,,,,,");
+                file.WriteLine("67,1,110,,,,,,,,");
+                file.WriteLine("79,1,98,,,,,,,,");
+                file.WriteLine("56,1,114,,,,,,,,");
             }
         }
+
+
+        private void dataGridView_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            e.Control.KeyPress -= new KeyPressEventHandler(Column_KeyPress);
+            TextBox tb = e.Control as TextBox;
+            if (tb != null)
+            {
+                tb.KeyPress += new KeyPressEventHandler(Column_KeyPress);
+            }
+        }
+
+        private void Column_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '.')
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void IntegerColumn_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void Horizon_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (constantsDataGrid.CurrentCell.ColumnIndex == 0 && constantsDataGrid.CurrentCell.Value != null)
+            {
+                int newHorizon = int.Parse(constantsDataGrid.Rows[0].Cells["Horizon"].Value.ToString());
+                int latestHorizon = variablesDataGrid.Rows.Count;
+
+                if (newHorizon > latestHorizon)
+                {
+                    for (int i = 0; i < newHorizon - latestHorizon; i++)
+                    {
+                        if (deletedRows.Count > 0)
+                        {
+                            variablesDataGrid.Rows.Add(deletedRows.Dequeue());
+                            variablesDataGrid.Rows[variablesDataGrid.Rows.Count - 1].Cells[0].Value = variablesDataGrid.Rows.Count;
+                        }
+                        else
+                        {
+                            variablesDataGrid.Rows.Add(CreateVariableRow(new object[] { latestHorizon + i + 1 }));
+                        }
+                    }
+                }
+                else if (newHorizon < latestHorizon)
+                {
+                    for (int i = 0; i < latestHorizon - newHorizon; i++)
+                    {
+                        if (!(variablesDataGrid.Rows[newHorizon].Cells["Demand"].Value == null
+                            && variablesDataGrid.Rows[newHorizon].Cells["Setup Costs"].Value == null
+                            && variablesDataGrid.Rows[newHorizon].Cells["Inventory Costs"].Value == null))
+                        {
+                            deletedRows.Enqueue(variablesDataGrid.Rows[newHorizon]);
+                        }
+                        variablesDataGrid.Rows.RemoveAt(newHorizon);
+                    }
+                }
+            }
+
+        }
+
+        private bool HasWriteAccessToFolder(string folderPath)
+        {
+            try
+            {
+                System.Security.AccessControl.DirectorySecurity ds = Directory.GetAccessControl(folderPath);
+                return true;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return false;
+            }
+
+        }
+
+        private void saveSettingsButton_Click(object sender, EventArgs e)
+        {
+            saveSettingsDialog.ShowDialog();
+        }
+
+        private void saveSettingsDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            SaveSettings(saveSettingsDialog.FileName);
+        }
+
+        private void SaveSettings(string filePath)
+        {
+            string[] headerRow;
+            string[] firstRow;
+            List<string[]> rows;
+            try
+            {
+                headerRow = "Demand,Inventory Cost,Setup Cost,Horizon,Production Cost,Selling Price,Unit Material Cost,Delay in payment to Supplier,Delay in payment from Client,Discount Rate,Interest Rate".Split(',');
+                firstRow = new string[11];
+                firstRow[0] = variablesDataGrid.Rows[0].Cells["Demand"].Value.ToString();
+                firstRow[1] = variablesDataGrid.Rows[0].Cells["Inventory Costs"].Value.ToString();
+                firstRow[2] = variablesDataGrid.Rows[0].Cells["Setup Costs"].Value.ToString();
+                firstRow[3] = constantsDataGrid.Rows[0].Cells["Horizon"].Value.ToString();
+                firstRow[4] = constantsDataGrid.Rows[0].Cells["Production Cost"].Value.ToString();
+                firstRow[5] = constantsDataGrid.Rows[0].Cells["Selling Price"].Value.ToString();
+                firstRow[6] = constantsDataGrid.Rows[0].Cells["Unit Material Cost"].Value.ToString();
+                firstRow[7] = constantsDataGrid.Rows[0].Cells["Delay in Payment from Client"].Value.ToString();
+                firstRow[8] = constantsDataGrid.Rows[0].Cells["Delay in Payment to Supplier"].Value.ToString();
+                firstRow[9] = constantsDataGrid.Rows[0].Cells["Alpha"].Value.ToString();
+                firstRow[10] = constantsDataGrid.Rows[0].Cells["Beta"].Value.ToString();
+                rows = new List<string[]>();
+                for (int i = 1; i < variablesDataGrid.Rows.Count; i++)
+                {
+                    rows.Add(new string[11]);
+                    rows[i - 1][0] = variablesDataGrid.Rows[i].Cells["Demand"].Value.ToString();
+                    rows[i - 1][1] = variablesDataGrid.Rows[i].Cells["Inventory Costs"].Value.ToString();
+                    rows[i - 1][2] = variablesDataGrid.Rows[i].Cells["Setup Costs"].Value.ToString();
+                }
+            }
+            catch { MessageBox.Show("Please fill settings before saving");
+                return;
+            }
+            
+
+            try
+            {
+                using (StreamWriter file = new StreamWriter(filePath))
+                {
+                    file.WriteLine(string.Join(",", headerRow));
+                    file.WriteLine(string.Join(",", firstRow));
+                    foreach (string[] row in rows) file.WriteLine(string.Join(",", row));
+                }
+
+            }
+            catch (System.IO.IOException)
+            {
+                MessageBox.Show("Write access denied");
+            }
+           
+        }
+
+
     }
 }

@@ -28,7 +28,7 @@ namespace Algorithms
 
         public static void Main(string[] args)
         {
-            YuanTry algo = new YuanTry(@"C:\Users\poiri\Downloads\testadrien4.csv");
+            YuanTry algo = new YuanTry(@"C:\Users\poiri\Downloads\exemplefabrice.csv");
 
             algo.ComputeProductionPlan();
             int sumOfDemand = 0;

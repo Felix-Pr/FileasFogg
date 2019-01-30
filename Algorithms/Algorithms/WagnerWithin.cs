@@ -96,8 +96,10 @@ namespace Algorithms
                 optimalProductionQuantity[0][0] = demand[0];
                 if (demand[0] > 0) minimalCosts[0] = setupCosts[0];
                 return;
-            }else if (demand[i] == 0)
-            {
+            }
+
+            else if (demand[i] == 0) {
+                //null demand particular case
                 int[] tempInventory = new int[i + 1];
                 int[] tempProductionQuantity = new int[i + 1];
                 double minimumCost = 0;
@@ -116,44 +118,14 @@ namespace Algorithms
                 return;
             }
 
+
             List<double> possibleCosts = new List<double>(); //i possible costs for satisfying demand by launching production at period j, 1<=j<=i
             List<int[]> possibleInventories = new List<int[]>();
             List<int[]> possibleProductionQuantities = new List<int[]>();
-
-
+            
             //cost and production plan evaluation if production is launched at period j to satisfy demand at period i
             for (int j = 0; j <= i; j++) {
-
-                double tempCost = 0; 
-                int[] tempInventory = new int[i + 1]; 
-                int[] tempProductionQuantity = new int[i + 1]; 
-
-                if (j > 0)
-                {
-                    tempCost = minimalCosts[j - 1]; //cost of lauching production at j = minimal cost between 1 and j-1 + setup costs j + inventory costs from j to i
-                    for (int k = 0; k < j; k++) {
-                        tempInventory[k] = optimalInventory[j - 1][k];
-                        tempProductionQuantity[k] = optimalProductionQuantity[j - 1][k];
-                    }
-                }
-                if (demand[i]>0) tempCost += setupCosts[j];
-
-                //inventory costs evaluation
-                int totalUnitsOrderedAtPeriodj = 0;
-                for (int k = j; k <= i; k++) totalUnitsOrderedAtPeriodj += demand[k];
-                int currentInventory = totalUnitsOrderedAtPeriodj;
-                tempProductionQuantity[j] = totalUnitsOrderedAtPeriodj;
-                tempInventory[j] = currentInventory - demand[j];
-
-                for (int k = j + 1; k <= i; k++) {
-                    currentInventory = currentInventory - demand[k - 1];
-                    tempInventory[k] = currentInventory - demand[k];
-                    tempCost += currentInventory * inventoryCosts[k - 1];
-                }
-
-                possibleCosts.Add(tempCost);
-                possibleInventories.Add(tempInventory);
-                possibleProductionQuantities.Add(tempProductionQuantity);
+                EvaluateCostOfProducingAtPeriodJforI(i, j, ref possibleCosts, ref possibleInventories, ref possibleProductionQuantities);
             }
 
             int indexOfMinimumCostCase = IndexOfMinimum(possibleCosts);
@@ -161,6 +133,42 @@ namespace Algorithms
             minimalCosts[i] = possibleCosts[indexOfMinimumCostCase];
             optimalProductionQuantity[i] = possibleProductionQuantities[indexOfMinimumCostCase];
             optimalInventory[i] = possibleInventories[indexOfMinimumCostCase];
+        }
+
+        private void EvaluateCostOfProducingAtPeriodJforI(int i, int j, ref List<double> possibleCosts, ref List<int[]> possibleInventories, ref List<int[]> possibleProductionQuantities)
+        {
+            double tempCost = 0;
+            int[] tempInventory = new int[i + 1];
+            int[] tempProductionQuantity = new int[i + 1];
+
+            if (j > 0)
+            {
+                tempCost = minimalCosts[j - 1]; //cost of lauching production at j = minimal cost between 1 and j-1 + setup costs j + inventory costs from j to i
+                for (int k = 0; k < j; k++)
+                {
+                    tempInventory[k] = optimalInventory[j - 1][k];
+                    tempProductionQuantity[k] = optimalProductionQuantity[j - 1][k];
+                }
+            }
+            if (demand[i] > 0) tempCost += setupCosts[j];
+
+            //inventory costs evaluation
+            int totalUnitsOrderedAtPeriodj = 0;
+            for (int k = j; k <= i; k++) totalUnitsOrderedAtPeriodj += demand[k];
+            int currentInventory = totalUnitsOrderedAtPeriodj;
+            tempProductionQuantity[j] = totalUnitsOrderedAtPeriodj;
+            tempInventory[j] = currentInventory - demand[j];
+
+            for (int k = j + 1; k <= i; k++)
+            {
+                currentInventory = currentInventory - demand[k - 1];
+                tempInventory[k] = currentInventory - demand[k];
+                tempCost += currentInventory * inventoryCosts[k - 1];
+            }
+
+            possibleCosts.Add(tempCost);
+            possibleInventories.Add(tempInventory);
+            possibleProductionQuantities.Add(tempProductionQuantity);
         }
 
         private static int IndexOfMinimum(List<double> liste)

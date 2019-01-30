@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PhileasFogg));
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.loadFromFileButton = new System.Windows.Forms.Button();
@@ -47,9 +47,12 @@
             this.saveSettingsButton = new System.Windows.Forms.Button();
             this.saveSettingsDialog = new System.Windows.Forms.SaveFileDialog();
             this.yuanButton = new System.Windows.Forms.Button();
+            this.horizonLength = new System.Windows.Forms.Label();
+            this.horizonNumericUpDown = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.variablesDataGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.constantsDataGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.resultsDataGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.horizonNumericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // openFileDialog
@@ -60,9 +63,9 @@
             // 
             // loadFromFileButton
             // 
-            this.loadFromFileButton.Location = new System.Drawing.Point(12, 12);
+            this.loadFromFileButton.Location = new System.Drawing.Point(2, 1);
             this.loadFromFileButton.Name = "loadFromFileButton";
-            this.loadFromFileButton.Size = new System.Drawing.Size(265, 56);
+            this.loadFromFileButton.Size = new System.Drawing.Size(659, 56);
             this.loadFromFileButton.TabIndex = 2;
             this.loadFromFileButton.Text = "Load from File";
             this.loadFromFileButton.UseVisualStyleBackColor = true;
@@ -70,9 +73,9 @@
             // 
             // wagnerWhitinButton
             // 
-            this.wagnerWhitinButton.Location = new System.Drawing.Point(677, 12);
+            this.wagnerWhitinButton.Location = new System.Drawing.Point(703, 3);
             this.wagnerWhitinButton.Name = "wagnerWhitinButton";
-            this.wagnerWhitinButton.Size = new System.Drawing.Size(303, 55);
+            this.wagnerWhitinButton.Size = new System.Drawing.Size(352, 55);
             this.wagnerWhitinButton.TabIndex = 4;
             this.wagnerWhitinButton.Text = "Compute Planning with Wagner Whitin";
             this.wagnerWhitinButton.UseVisualStyleBackColor = true;
@@ -81,9 +84,9 @@
             // exportResultsButton
             // 
             this.exportResultsButton.Enabled = false;
-            this.exportResultsButton.Location = new System.Drawing.Point(1232, 12);
+            this.exportResultsButton.Location = new System.Drawing.Point(703, 62);
             this.exportResultsButton.Name = "exportResultsButton";
-            this.exportResultsButton.Size = new System.Drawing.Size(163, 56);
+            this.exportResultsButton.Size = new System.Drawing.Size(718, 56);
             this.exportResultsButton.TabIndex = 5;
             this.exportResultsButton.Text = "Export Results";
             this.exportResultsButton.UseVisualStyleBackColor = true;
@@ -92,13 +95,14 @@
             // exportResultsDialog
             // 
             this.exportResultsDialog.DefaultExt = "csv";
+            this.exportResultsDialog.Filter = "csv|*.csv";
             this.exportResultsDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.exportResultsDialog_FileOk);
             // 
             // generateCsvTemplateButton
             // 
-            this.generateCsvTemplateButton.Location = new System.Drawing.Point(283, 12);
+            this.generateCsvTemplateButton.Location = new System.Drawing.Point(2, 63);
             this.generateCsvTemplateButton.Name = "generateCsvTemplateButton";
-            this.generateCsvTemplateButton.Size = new System.Drawing.Size(191, 55);
+            this.generateCsvTemplateButton.Size = new System.Drawing.Size(316, 55);
             this.generateCsvTemplateButton.TabIndex = 7;
             this.generateCsvTemplateButton.Text = "Generate Settings Template";
             this.generateCsvTemplateButton.UseVisualStyleBackColor = true;
@@ -115,9 +119,10 @@
             // 
             this.variablesDataGrid.AllowUserToAddRows = false;
             this.variablesDataGrid.AllowUserToDeleteRows = false;
+            this.variablesDataGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.variablesDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.variablesDataGrid.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            this.variablesDataGrid.Location = new System.Drawing.Point(3, 260);
+            this.variablesDataGrid.Location = new System.Drawing.Point(2, 169);
             this.variablesDataGrid.MultiSelect = false;
             this.variablesDataGrid.Name = "variablesDataGrid";
             this.variablesDataGrid.RowHeadersVisible = false;
@@ -131,24 +136,26 @@
             // 
             this.constantsDataGrid.AllowUserToAddRows = false;
             this.constantsDataGrid.AllowUserToDeleteRows = false;
-            this.constantsDataGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.ColumnHeader;
+            this.constantsDataGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.constantsDataGrid.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.constantsDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.constantsDataGrid.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.constantsDataGrid.DefaultCellStyle = dataGridViewCellStyle1;
             this.constantsDataGrid.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            this.constantsDataGrid.Location = new System.Drawing.Point(3, 121);
+            this.constantsDataGrid.Location = new System.Drawing.Point(2, 633);
             this.constantsDataGrid.MultiSelect = false;
             this.constantsDataGrid.Name = "constantsDataGrid";
             this.constantsDataGrid.RowHeadersVisible = false;
             this.constantsDataGrid.RowTemplate.Height = 28;
+            this.constantsDataGrid.ScrollBars = System.Windows.Forms.ScrollBars.None;
             this.constantsDataGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.constantsDataGrid.Size = new System.Drawing.Size(1392, 91);
+            this.constantsDataGrid.Size = new System.Drawing.Size(667, 100);
             this.constantsDataGrid.TabIndex = 9;
             this.constantsDataGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.Settings_CellValueChanged);
             this.constantsDataGrid.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dataGridView_EditingControlShowing);
@@ -157,27 +164,28 @@
             // 
             this.resultsDataGrid.AllowUserToAddRows = false;
             this.resultsDataGrid.AllowUserToDeleteRows = false;
+            this.resultsDataGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.resultsDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.resultsDataGrid.DefaultCellStyle = dataGridViewCellStyle6;
-            this.resultsDataGrid.Location = new System.Drawing.Point(677, 260);
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.resultsDataGrid.DefaultCellStyle = dataGridViewCellStyle2;
+            this.resultsDataGrid.Location = new System.Drawing.Point(703, 169);
             this.resultsDataGrid.Name = "resultsDataGrid";
             this.resultsDataGrid.ReadOnly = true;
             this.resultsDataGrid.RowHeadersVisible = false;
             this.resultsDataGrid.RowTemplate.Height = 28;
-            this.resultsDataGrid.Size = new System.Drawing.Size(718, 408);
+            this.resultsDataGrid.Size = new System.Drawing.Size(718, 564);
             this.resultsDataGrid.TabIndex = 10;
             // 
             // resultsLabel
             // 
             this.resultsLabel.AutoSize = true;
-            this.resultsLabel.Location = new System.Drawing.Point(673, 225);
+            this.resultsLabel.Location = new System.Drawing.Point(699, 134);
             this.resultsLabel.Name = "resultsLabel";
             this.resultsLabel.Size = new System.Drawing.Size(63, 20);
             this.resultsLabel.TabIndex = 11;
@@ -186,7 +194,7 @@
             // dataLabel
             // 
             this.dataLabel.AutoSize = true;
-            this.dataLabel.Location = new System.Drawing.Point(3, 225);
+            this.dataLabel.Location = new System.Drawing.Point(2, 134);
             this.dataLabel.Name = "dataLabel";
             this.dataLabel.Size = new System.Drawing.Size(48, 20);
             this.dataLabel.TabIndex = 12;
@@ -195,17 +203,17 @@
             // settingsLabel
             // 
             this.settingsLabel.AutoSize = true;
-            this.settingsLabel.Location = new System.Drawing.Point(3, 86);
+            this.settingsLabel.Location = new System.Drawing.Point(2, 598);
             this.settingsLabel.Name = "settingsLabel";
-            this.settingsLabel.Size = new System.Drawing.Size(68, 20);
+            this.settingsLabel.Size = new System.Drawing.Size(190, 20);
             this.settingsLabel.TabIndex = 13;
-            this.settingsLabel.Text = "Settings";
+            this.settingsLabel.Text = "Owcr Calculation Settings";
             // 
             // saveSettingsButton
             // 
-            this.saveSettingsButton.Location = new System.Drawing.Point(480, 12);
+            this.saveSettingsButton.Location = new System.Drawing.Point(324, 63);
             this.saveSettingsButton.Name = "saveSettingsButton";
-            this.saveSettingsButton.Size = new System.Drawing.Size(190, 55);
+            this.saveSettingsButton.Size = new System.Drawing.Size(337, 55);
             this.saveSettingsButton.TabIndex = 15;
             this.saveSettingsButton.Text = "Save Settings";
             this.saveSettingsButton.UseVisualStyleBackColor = true;
@@ -217,20 +225,44 @@
             // 
             // yuanButton
             // 
-            this.yuanButton.Location = new System.Drawing.Point(986, 12);
+            this.yuanButton.Location = new System.Drawing.Point(1061, 3);
             this.yuanButton.Name = "yuanButton";
-            this.yuanButton.Size = new System.Drawing.Size(240, 55);
+            this.yuanButton.Size = new System.Drawing.Size(360, 55);
             this.yuanButton.TabIndex = 16;
             this.yuanButton.Text = "Compute Planning with Yuan Algorithm";
             this.yuanButton.UseVisualStyleBackColor = true;
             this.yuanButton.Click += new System.EventHandler(this.yuanButton_click);
+            // 
+            // horizonLength
+            // 
+            this.horizonLength.AutoSize = true;
+            this.horizonLength.Location = new System.Drawing.Point(87, 134);
+            this.horizonLength.Name = "horizonLength";
+            this.horizonLength.Size = new System.Drawing.Size(126, 20);
+            this.horizonLength.TabIndex = 18;
+            this.horizonLength.Text = "Horizon Length :";
+            // 
+            // horizonNumericUpDown
+            // 
+            this.horizonNumericUpDown.Location = new System.Drawing.Point(219, 134);
+            this.horizonNumericUpDown.Name = "horizonNumericUpDown";
+            this.horizonNumericUpDown.Size = new System.Drawing.Size(120, 26);
+            this.horizonNumericUpDown.TabIndex = 20;
+            this.horizonNumericUpDown.Value = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+            this.horizonNumericUpDown.ValueChanged += new System.EventHandler(this.changeHorizonButton_Click);
             // 
             // PhileasFogg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1893, 648);
+            this.ClientSize = new System.Drawing.Size(1878, 739);
+            this.Controls.Add(this.horizonNumericUpDown);
+            this.Controls.Add(this.horizonLength);
             this.Controls.Add(this.yuanButton);
             this.Controls.Add(this.saveSettingsButton);
             this.Controls.Add(this.settingsLabel);
@@ -252,6 +284,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.variablesDataGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.constantsDataGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.resultsDataGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.horizonNumericUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -274,6 +307,8 @@
         private System.Windows.Forms.Button saveSettingsButton;
         private System.Windows.Forms.SaveFileDialog saveSettingsDialog;
         private System.Windows.Forms.Button yuanButton;
+        private System.Windows.Forms.Label horizonLength;
+        private System.Windows.Forms.NumericUpDown horizonNumericUpDown;
     }
 }
 

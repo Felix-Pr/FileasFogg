@@ -85,7 +85,7 @@ namespace Algorithms
             }
         }
 
-        public YuanContext(DataGridView constantsDataGridView, DataGridView variablesDataGridView)
+        public YuanContext(int horizonLength, DataGridView constantsDataGridView, DataGridView variablesDataGridView)
         {
             alpha = double.Parse(constantsDataGridView.Rows[0].Cells["Alpha"].Value.ToString());
             beta = double.Parse(constantsDataGridView.Rows[0].Cells["Beta"].Value.ToString());
@@ -94,8 +94,7 @@ namespace Algorithms
             unitMaterialCost = double.Parse(constantsDataGridView.Rows[0].Cells["Unit Material Cost"].Value.ToString());
             productionCost = double.Parse(constantsDataGridView.Rows[0].Cells["Production Cost"].Value.ToString());
             sellingPrice = double.Parse(constantsDataGridView.Rows[0].Cells["Selling Price"].Value.ToString());
-            horizon = int.Parse(constantsDataGridView.Rows[0].Cells["Horizon"].Value.ToString());
-
+            horizon = horizonLength;
             setupCosts = new List<double>(horizon);
             inventoryCosts = new List<double>(horizon);
             demand = new List<int>(horizon);

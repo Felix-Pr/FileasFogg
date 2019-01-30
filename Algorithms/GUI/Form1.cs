@@ -15,7 +15,7 @@ namespace GUI
         private int[] optimalProductionQuantity = new int[initialHorizonLength];
         private int[] optimalInventory = new int[initialHorizonLength];
 
-        private Queue<DataGridViewRow> deletedRows = new Queue<DataGridViewRow>();
+        private Stack<DataGridViewRow> deletedRows = new Stack<DataGridViewRow>();
 
         private readonly DataGridViewRow firstRow = new DataGridViewRow();
 
@@ -27,19 +27,20 @@ namespace GUI
         private void PhileasFogg_Load(object sender, EventArgs e)
         {
             GenerateColumns();
+            horizonNumericUpDown.Value = initialHorizonLength;
             constantsDataGrid.Rows.Add(new DataGridViewRow());
-            constantsDataGrid.Rows[0].SetValues(initialHorizonLength,0,0,0,0,0,0,0);
+            constantsDataGrid.Rows[0].SetValues(0,0,0,0,0,0,0);
         }
 
         private void GenerateColumns()
         {
-            DataGridViewTextBoxColumn horizon = new DataGridViewTextBoxColumn()
+            /*DataGridViewTextBoxColumn horizon = new DataGridViewTextBoxColumn()
             {
                 ValueType = typeof(int),
                 SortMode = DataGridViewColumnSortMode.NotSortable,
                 Name = "Horizon",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            };
+            };*/
             DataGridViewTextBoxColumn sellingPrice = new DataGridViewTextBoxColumn()
             {
                 ValueType = typeof(double),
@@ -84,7 +85,6 @@ namespace GUI
             };
 
             constantsDataGrid.Columns.AddRange(
-               horizon,
                productionCost,
                sellingPrice,
                unitMaterialCost,
@@ -152,26 +152,28 @@ namespace GUI
             foreach (DataGridViewRow row in variablesDataGrid.Rows) row.SetValues(row.Cells[0].Value, 0, 0, 0);
         }
 
-        private void LoadDataGrid(object[] constantRow, List<object[]> variableRows)
+        private void LoadDataGrid(int horizonLength, object[] constantRow, List<object[]> variableRows)
         {
             constantsDataGrid.Rows.Clear();
             variablesDataGrid.Rows.Clear();
             constantsDataGrid.Rows.Add(CreateConstantsRow(constantRow));
             foreach (object[] row in variableRows) variablesDataGrid.Rows.Add(CreateVariableRow(row));
+            horizonNumericUpDown.Value = horizonLength;
         }
 
         private void LoadDataGrid(string filePath)
         {
             object[] constantRow = new object[8];
             List<object[]> variableRows = new List<object[]>();
+            int horizonLength=0;
 
             using (var reader = new StreamReader(filePath))
             {
                 reader.ReadLine(); //Header row
                 int period = 1;
                 object[] firstRow = reader.ReadLine().Split(',');
-
-                constantRow = SubArray(firstRow, 3, 8);
+                horizonLength = Int32.Parse(firstRow[3].ToString());
+                constantRow = SubArray(firstRow, 4, 7);
                 object[] variableRow = new object[4];
                 variableRow[0] = period;
                 SubArray(firstRow, 0, 3).CopyTo(variableRow, 1);
@@ -187,7 +189,7 @@ namespace GUI
                 }
             }
 
-            LoadDataGrid(constantRow, variableRows);
+            LoadDataGrid(horizonLength, constantRow, variableRows);
 
         }
 
@@ -271,7 +273,7 @@ namespace GUI
                 MessageBox.Show("Incorrect file completion : please make sure the template is correctly filled");
                 return;
             }
-            deletedRows = new Queue<DataGridViewRow>();
+            deletedRows = new Stack<DataGridViewRow>();
             LoadDataGrid(openFileDialog.FileName);
         }
 
@@ -279,7 +281,8 @@ namespace GUI
         {
             try
             {
-                WagnerWithin w = new WagnerWithin(new YuanContext(constantsDataGrid, variablesDataGrid));
+                context = new YuanContext((int)horizonNumericUpDown.Value, constantsDataGrid, variablesDataGrid);
+                WagnerWithin w = new WagnerWithin(context);
                 minimalCosts = w.MinimalCosts;
                 optimalInventory = w.OptimalInventory;
                 optimalProductionQuantity = w.OptimalProductionQuantity;
@@ -362,52 +365,13 @@ namespace GUI
             }
         }
 
+
         private void Settings_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 0)
-            {
-                Horizon_CellValueChanged(sender, e);
-                return;
-            }
             if (constantsDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString() == "") constantsDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = 0;
-
-
-
         }
-        private void Horizon_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
 
-            if (constantsDataGrid.CurrentCell.ColumnIndex == 0 && constantsDataGrid.CurrentCell.Value != null)
-            {
-                int newHorizon = int.Parse(constantsDataGrid.Rows[0].Cells["Horizon"].Value.ToString());
-                int latestHorizon = variablesDataGrid.Rows.Count;
-
-                if (newHorizon > latestHorizon)
-                {
-                    for (int i = 0; i < newHorizon - latestHorizon; i++)
-                    {
-                        if (deletedRows.Count > 0)
-                        {
-                            variablesDataGrid.Rows.Add(deletedRows.Dequeue());
-                            variablesDataGrid.Rows[variablesDataGrid.Rows.Count - 1].Cells[0].Value = variablesDataGrid.Rows.Count;
-                        }
-                        else
-                        {
-                            variablesDataGrid.Rows.Add(CreateVariableRow(new object[] { latestHorizon + i + 1, 0, 0, 0 }));
-                        }
-                    }
-                }
-                else if (newHorizon < latestHorizon)
-                {
-                    for (int i = 0; i < latestHorizon - newHorizon; i++)
-                    {
-                        if (VariableRowIsNotEmpty(newHorizon)) deletedRows.Enqueue(variablesDataGrid.Rows[newHorizon]);
-                        variablesDataGrid.Rows.RemoveAt(newHorizon);
-                    }
-                }
-            }
-
-        }
+        
 
         private bool VariableRowIsNotEmpty(int rowIndex)
         {
@@ -452,7 +416,7 @@ namespace GUI
                 firstRow[0] = variablesDataGrid.Rows[0].Cells["Demand"].Value.ToString();
                 firstRow[1] = variablesDataGrid.Rows[0].Cells["Inventory Costs"].Value.ToString();
                 firstRow[2] = variablesDataGrid.Rows[0].Cells["Setup Costs"].Value.ToString();
-                firstRow[3] = constantsDataGrid.Rows[0].Cells["Horizon"].Value.ToString();
+                firstRow[3] = horizonNumericUpDown.Value.ToString();
                 firstRow[4] = constantsDataGrid.Rows[0].Cells["Production Cost"].Value.ToString();
                 firstRow[5] = constantsDataGrid.Rows[0].Cells["Selling Price"].Value.ToString();
                 firstRow[6] = constantsDataGrid.Rows[0].Cells["Unit Material Cost"].Value.ToString();
@@ -497,7 +461,7 @@ namespace GUI
                
                 try
                 {
-                    YuanTry y = new YuanTry(new YuanContext(constantsDataGrid, variablesDataGrid));
+                    YuanTry y = new YuanTry(new YuanContext((int)horizonNumericUpDown.Value, constantsDataGrid, variablesDataGrid));
                     y.InitializeArrays();
                     y.ComputeProductionPlan();
                     minimalCosts = y.minimalFinancingCosts;
@@ -517,5 +481,38 @@ namespace GUI
         {
             if (variablesDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString() == "") variablesDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = 0;
         }
+
+        private void changeHorizonButton_Click(object sender, EventArgs e)
+        {
+            int newHorizon = (int)horizonNumericUpDown.Value;
+            int latestHorizon = variablesDataGrid.Rows.Count;
+
+            if (newHorizon > latestHorizon)
+            {
+                for (int i = 0; i < newHorizon - latestHorizon; i++)
+                {
+                    if (deletedRows.Count > 0)
+                    {
+                        variablesDataGrid.Rows.Add(deletedRows.Pop());
+                        variablesDataGrid.Rows[variablesDataGrid.Rows.Count - 1].Cells[0].Value = variablesDataGrid.Rows.Count;
+                    }
+                    else
+                    {
+                        variablesDataGrid.Rows.Add(CreateVariableRow(new object[] { latestHorizon + i + 1, 0, 0, 0 }));
+                    }
+                }
+            }
+            else if (newHorizon < latestHorizon)
+            {
+                for (int i = latestHorizon-1; i >= newHorizon; i--)
+                {
+                    if (VariableRowIsNotEmpty(newHorizon)) deletedRows.Push(variablesDataGrid.Rows[i]);
+                    else if(deletedRows.Count!=0) deletedRows.Push(variablesDataGrid.Rows[i]);
+                    variablesDataGrid.Rows.RemoveAt(i);
+                }
+            }
+        }
+
+        
     }
 }

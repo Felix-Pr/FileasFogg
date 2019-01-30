@@ -9,7 +9,7 @@ namespace GUI
 {
     public partial class PhileasFogg : Form
     {
-        private static int initialHorizonLength = 6;
+        private static int initialHorizonLength = 5;
 
         private double[] minimalCosts = new double[initialHorizonLength];
         private int[] optimalProductionQuantity = new int[initialHorizonLength];
@@ -28,7 +28,7 @@ namespace GUI
         {
             GenerateColumns();
             constantsDataGrid.Rows.Add(new DataGridViewRow());
-            constantsDataGrid.Rows[0].SetValues(initialHorizonLength);
+            constantsDataGrid.Rows[0].SetValues(initialHorizonLength,0,0,0,0,0,0,0);
         }
 
         private void GenerateColumns()
@@ -122,6 +122,8 @@ namespace GUI
                 SortMode = DataGridViewColumnSortMode.NotSortable
             };
 
+            
+
 
             variablesDataGrid.Columns.AddRange(period, demand, inventoryCosts, setupCosts);
 
@@ -147,7 +149,7 @@ namespace GUI
                 Name = "Costs"
             };
             resultsDataGrid.Columns.AddRange(resultPeriod, productionQuantity, inventory, costs);
-
+            foreach (DataGridViewRow row in variablesDataGrid.Rows) row.SetValues(row.Cells[0].Value, 0, 0, 0);
         }
 
         private void LoadDataGrid(object[] constantRow, List<object[]> variableRows)
@@ -284,9 +286,9 @@ namespace GUI
                 ShowResults();
                 exportResultsButton.Enabled = true;
             }
-            catch
+            catch(Exception ex)
             {
-                MessageBox.Show("Please fill all cells");
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -360,8 +362,21 @@ namespace GUI
             }
         }
 
+        private void Settings_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == 0)
+            {
+                Horizon_CellValueChanged(sender, e);
+                return;
+            }
+            if (constantsDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString() == "") constantsDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = 0;
+
+
+
+        }
         private void Horizon_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
+
             if (constantsDataGrid.CurrentCell.ColumnIndex == 0 && constantsDataGrid.CurrentCell.Value != null)
             {
                 int newHorizon = int.Parse(constantsDataGrid.Rows[0].Cells["Horizon"].Value.ToString());
@@ -378,7 +393,7 @@ namespace GUI
                         }
                         else
                         {
-                            variablesDataGrid.Rows.Add(CreateVariableRow(new object[] { latestHorizon + i + 1 }));
+                            variablesDataGrid.Rows.Add(CreateVariableRow(new object[] { latestHorizon + i + 1, 0, 0, 0 }));
                         }
                     }
                 }
@@ -386,17 +401,19 @@ namespace GUI
                 {
                     for (int i = 0; i < latestHorizon - newHorizon; i++)
                     {
-                        if (!(variablesDataGrid.Rows[newHorizon].Cells["Demand"].Value == null
-                            && variablesDataGrid.Rows[newHorizon].Cells["Setup Costs"].Value == null
-                            && variablesDataGrid.Rows[newHorizon].Cells["Inventory Costs"].Value == null))
-                        {
-                            deletedRows.Enqueue(variablesDataGrid.Rows[newHorizon]);
-                        }
+                        if (VariableRowIsNotEmpty(newHorizon)) deletedRows.Enqueue(variablesDataGrid.Rows[newHorizon]);
                         variablesDataGrid.Rows.RemoveAt(newHorizon);
                     }
                 }
             }
 
+        }
+
+        private bool VariableRowIsNotEmpty(int rowIndex)
+        {
+            return !(variablesDataGrid.Rows[rowIndex].Cells["Demand"].Value.ToString() == "0"
+                            && variablesDataGrid.Rows[rowIndex].Cells["Setup Costs"].Value.ToString() == "0"
+                            && variablesDataGrid.Rows[rowIndex].Cells["Inventory Costs"].Value.ToString() == "0");
         }
 
         private bool HasWriteAccessToFolder(string folderPath)
@@ -474,6 +491,31 @@ namespace GUI
            
         }
 
+        private void yuanButton_click(object sender, EventArgs e)
+        {
+            {
+               
+                try
+                {
+                    YuanTry y = new YuanTry(new YuanContext(constantsDataGrid, variablesDataGrid));
+                    y.InitializeArrays();
+                    y.ComputeProductionPlan();
+                    minimalCosts = y.minimalFinancingCosts;
+                    optimalInventory = y.I[y.I.Length-1];
+                    optimalProductionQuantity = y.Q[y.Q.Length-1];
+                    ShowResults();
+                    exportResultsButton.Enabled = true;
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
 
+        private void variablesDataGrid_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (variablesDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString() == "") variablesDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = 0;
+        }
     }
 }

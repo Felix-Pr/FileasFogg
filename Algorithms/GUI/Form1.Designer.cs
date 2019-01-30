@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PhileasFogg));
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.loadFromFileButton = new System.Windows.Forms.Button();
@@ -46,6 +46,7 @@
             this.settingsLabel = new System.Windows.Forms.Label();
             this.saveSettingsButton = new System.Windows.Forms.Button();
             this.saveSettingsDialog = new System.Windows.Forms.SaveFileDialog();
+            this.yuanButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.variablesDataGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.constantsDataGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.resultsDataGrid)).BeginInit();
@@ -54,6 +55,7 @@
             // openFileDialog
             // 
             this.openFileDialog.FileName = "openFileDialog";
+            this.openFileDialog.Filter = "csv|*.csv";
             this.openFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
             // 
             // loadFromFileButton
@@ -79,9 +81,9 @@
             // exportResultsButton
             // 
             this.exportResultsButton.Enabled = false;
-            this.exportResultsButton.Location = new System.Drawing.Point(986, 12);
+            this.exportResultsButton.Location = new System.Drawing.Point(1232, 12);
             this.exportResultsButton.Name = "exportResultsButton";
-            this.exportResultsButton.Size = new System.Drawing.Size(409, 56);
+            this.exportResultsButton.Size = new System.Drawing.Size(163, 56);
             this.exportResultsButton.TabIndex = 5;
             this.exportResultsButton.Text = "Export Results";
             this.exportResultsButton.UseVisualStyleBackColor = true;
@@ -122,6 +124,7 @@
             this.variablesDataGrid.RowTemplate.Height = 28;
             this.variablesDataGrid.Size = new System.Drawing.Size(667, 408);
             this.variablesDataGrid.TabIndex = 8;
+            this.variablesDataGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.variablesDataGrid_CellValueChanged);
             this.variablesDataGrid.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dataGridView_EditingControlShowing);
             // 
             // constantsDataGrid
@@ -130,14 +133,14 @@
             this.constantsDataGrid.AllowUserToDeleteRows = false;
             this.constantsDataGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.ColumnHeader;
             this.constantsDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.constantsDataGrid.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.constantsDataGrid.DefaultCellStyle = dataGridViewCellStyle5;
             this.constantsDataGrid.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.constantsDataGrid.Location = new System.Drawing.Point(3, 121);
             this.constantsDataGrid.MultiSelect = false;
@@ -147,7 +150,7 @@
             this.constantsDataGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.constantsDataGrid.Size = new System.Drawing.Size(1392, 91);
             this.constantsDataGrid.TabIndex = 9;
-            this.constantsDataGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.Horizon_CellValueChanged);
+            this.constantsDataGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.Settings_CellValueChanged);
             this.constantsDataGrid.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dataGridView_EditingControlShowing);
             // 
             // resultsDataGrid
@@ -155,14 +158,14 @@
             this.resultsDataGrid.AllowUserToAddRows = false;
             this.resultsDataGrid.AllowUserToDeleteRows = false;
             this.resultsDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.resultsDataGrid.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.resultsDataGrid.DefaultCellStyle = dataGridViewCellStyle6;
             this.resultsDataGrid.Location = new System.Drawing.Point(677, 260);
             this.resultsDataGrid.Name = "resultsDataGrid";
             this.resultsDataGrid.ReadOnly = true;
@@ -212,12 +215,23 @@
             // 
             this.saveSettingsDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.saveSettingsDialog_FileOk);
             // 
+            // yuanButton
+            // 
+            this.yuanButton.Location = new System.Drawing.Point(986, 12);
+            this.yuanButton.Name = "yuanButton";
+            this.yuanButton.Size = new System.Drawing.Size(240, 55);
+            this.yuanButton.TabIndex = 16;
+            this.yuanButton.Text = "Compute Planning with Yuan Algorithm";
+            this.yuanButton.UseVisualStyleBackColor = true;
+            this.yuanButton.Click += new System.EventHandler(this.yuanButton_click);
+            // 
             // PhileasFogg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1893, 648);
+            this.Controls.Add(this.yuanButton);
             this.Controls.Add(this.saveSettingsButton);
             this.Controls.Add(this.settingsLabel);
             this.Controls.Add(this.dataLabel);
@@ -259,6 +273,7 @@
         private System.Windows.Forms.Label settingsLabel;
         private System.Windows.Forms.Button saveSettingsButton;
         private System.Windows.Forms.SaveFileDialog saveSettingsDialog;
+        private System.Windows.Forms.Button yuanButton;
     }
 }
 

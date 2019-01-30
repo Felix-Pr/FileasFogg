@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Algorithms
 {
@@ -95,6 +94,26 @@ namespace Algorithms
                 //first period particular case
                 optimalInventory[0][0] = 0;
                 optimalProductionQuantity[0][0] = demand[0];
+                if (demand[0] > 0) minimalCosts[0] = setupCosts[0];
+                return;
+            }else if (demand[i] == 0)
+            {
+                int[] tempInventory = new int[i + 1];
+                int[] tempProductionQuantity = new int[i + 1];
+                double minimumCost = 0;
+                for(int j = 0; j < i; j++)
+                {
+                    tempInventory[j] = optimalInventory[i-1][j];
+                    tempProductionQuantity[j] = optimalProductionQuantity[i-1][j];
+                }
+                tempInventory[i] = tempInventory[i - 1];
+                tempProductionQuantity[i] = 0;
+                minimumCost = minimalCosts[i - 1] + tempInventory[i - 1] * inventoryCosts[i - 1];
+
+                optimalInventory[i] = tempInventory;
+                optimalProductionQuantity[i] = tempProductionQuantity;
+                minimalCosts[i] = minimumCost;
+                return;
             }
 
             List<double> possibleCosts = new List<double>(); //i possible costs for satisfying demand by launching production at period j, 1<=j<=i
@@ -117,7 +136,7 @@ namespace Algorithms
                         tempProductionQuantity[k] = optimalProductionQuantity[j - 1][k];
                     }
                 }
-                tempCost += setupCosts[j];
+                if (demand[i]>0) tempCost += setupCosts[j];
 
                 //inventory costs evaluation
                 int totalUnitsOrderedAtPeriodj = 0;

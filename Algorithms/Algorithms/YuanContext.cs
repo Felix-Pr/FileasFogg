@@ -62,10 +62,10 @@ namespace Algorithms
                             delayInPaymentFromClient = int.Parse(values[i]);
                             break;
                         case ("Discount Rate"): //alpha
-                            alpha = int.Parse(values[i]);
+                            alpha = double.Parse(values[i]);
                             break;
                         case ("Interest Rate"): //beta
-                            beta = int.Parse(values[i]);
+                            beta = double.Parse(values[i]);
                             break;
                         case ("Demand"): 
                             demandColumnIndex = i;

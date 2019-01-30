@@ -2,19 +2,17 @@
 
 namespace Algorithms
 {
-    class YuanTry
+    public class YuanTry
     {
-
         public YuanContext c;
         //k = periode a laquelle il faut répondre a la demande
         //t = periode on produit pour satisfaire la demande de la periode k
 
-
-        private double[] minimalCosts;
+        public double[] minimalFinancingCosts;
         private double[][] Ekt;
-        private int[][] Q; //production
+        public int[][] Q; //production
         private int[][] Y; //setup , =0 ou =1, a revoir
-        private int[][] I; //inventaire a la periode t
+        public int[][] I; //inventaire a la periode t
         private int[][] lastXtk;
         private double[] owcr;
 
@@ -23,20 +21,44 @@ namespace Algorithms
             this.c = new YuanContext(fileName);
         }
 
+        public YuanTry(YuanContext yuanContext)
+        {
+            this.c = yuanContext;
+        }
+
         public static void Main(string[] args)
         {
-            YuanTry algo = new YuanTry(@"C:\Users\poiri\Downloads\COntextTemplate.csv");
+            YuanTry algo = new YuanTry(@"C:\Users\poiri\Downloads\testadrien4.csv");
+
             algo.ComputeProductionPlan();
-            foreach(int q in algo.Q[algo.c.horizon-1])Console.WriteLine(q);
+            int sumOfDemand = 0;
+            int sumOfProduction = 0;
+            foreach (int d in algo.c.demand) sumOfDemand += d;
+            foreach (int q in algo.Q[algo.c.horizon - 1]) sumOfProduction += q;
+            Console.WriteLine("Sum of demand : " + sumOfDemand);
+            Console.WriteLine("Sum of production : " + sumOfProduction);
+            Console.WriteLine("Q :");
+            foreach (int q in algo.Q[algo.c.horizon-1])Console.WriteLine(q);
+            Console.WriteLine("Y :");
+            foreach(int y in algo.Y[algo.c.horizon-1])Console.WriteLine(y);
             Console.WriteLine();
+            Console.WriteLine("Demand:");
+            foreach (int d in algo.c.demand) Console.WriteLine(d);
+            Console.WriteLine();
+
             Console.WriteLine("Alpha"+algo.c.alpha);            
-            Console.WriteLine("Beta"+algo.c.beta);            
+            Console.WriteLine("Beta"+algo.c.beta);
+            int k = 2;
+            for (int t=0; t<=k; t++) Console.WriteLine("LC " + t + "," + k + " : " +algo.LC(t,k));
+
+            for(int i = 0; i<algo.c.horizon; i++) Console.WriteLine("Cost "+i+ " : " + algo.minimalFinancingCosts[i]);
+
             Console.Read();
         }
 
         public void InitializeArrays()
         {
-            minimalCosts = new double[c.horizon];
+            minimalFinancingCosts = new double[c.horizon];
             Q = new int[c.horizon][];
             Y = new int[c.horizon][];
             I = new int[c.horizon][];
@@ -50,7 +72,7 @@ namespace Algorithms
                 Y[i] = new int[i + 1];
             }
             Q[0][0] = c.demand[0];
-            minimalCosts[0] = ComputeEtk(0, 0);
+            minimalFinancingCosts[0] = ComputeEtk(0, 0);
         }
 
         public void ComputeProductionPlan()
@@ -65,16 +87,16 @@ namespace Algorithms
         {
             if (k == 0) return;
 
-            int periodOfLatestSetup = GetPeriodOfLatestSetup(k-1);
+            int periodOfLatestSetup = GetPeriodOfLatestSetup(k);
             ComputeEk(k, periodOfLatestSetup);
 
-            double[] possiblecosts = new double[k + 1];
-            possiblecosts[0] = Ekt[k][0];
-            for (int t = Math.Max(periodOfLatestSetup,1); t <= k; t++) possiblecosts[t] = minimalCosts[t-1] + Ekt[k][t];
+            double[] possibleFinancingCosts = new double[k + 1];
+            possibleFinancingCosts[0] = Ekt[k][0];
+            for (int t = Math.Max(periodOfLatestSetup,1); t <= k; t++) possibleFinancingCosts[t] = minimalFinancingCosts[t-1] + Ekt[k][t];
 
-            int periodOfProduction = IndexOfMinimum(possiblecosts, periodOfLatestSetup);
+            int periodOfProduction = IndexOfMinimum(possibleFinancingCosts, periodOfLatestSetup);
 
-            minimalCosts[k] = possiblecosts[periodOfProduction];
+            minimalFinancingCosts[k] = possibleFinancingCosts[periodOfProduction];
 
             for (int i = 0; i < periodOfProduction; i++) Q[k][i] = Q[periodOfProduction - 1][i];
             for (int i = periodOfProduction; i <= k; i++) Q[k][periodOfProduction] += c.demand[i];
@@ -90,7 +112,7 @@ namespace Algorithms
             Q[k] = new int[k + 1];
             for (int i = 0; i < Math.Max(periodOfProduction, 0); i++)
             {
-                Q[k][i] = Q[periodOfProduction - 1][i];
+                Q[k][i] = Q[periodOfProduction-1][i];
             }
             int remainingToProduce = 0;
             for (int i = periodOfProduction; i < k+1; i++)
@@ -98,6 +120,7 @@ namespace Algorithms
                 remainingToProduce += c.demand[i];
             }
             Q[k][periodOfProduction] += remainingToProduce;
+            
         }
         private void ComputeY(int k)
         {
@@ -137,14 +160,6 @@ namespace Algorithms
             }
             I[k] = i;
         }
-
-        private void ComputeEk(int k)
-        {
-            for (int t = 0; t <= k; t++)
-            {
-                Ekt[k][t] = ComputeEtk(t, k);
-            }
-        }
         private void ComputeEk(int k, int tmin)
         {
             for (int t = tmin; t <= k; t++)
@@ -156,51 +171,52 @@ namespace Algorithms
         {
             double res = 0;
             //ATTENTION determiner la somme
-            for (int l = t; l <= k - 1; l++) res += WcrPur(l, k) + WcrSet(l, k) + WcrProd(l, k) + WcrInv(l, k);
+            //for (int l = t; l <= k-1; l++) res += WcrPur(t, k) + WcrSet(t, k) + WcrProd(t, k) + WcrInv(t, k);
+            res += WcrPur(t, k) + WcrSet(t, k) + WcrProd(t, k) + WcrInv(t, k);
             res *= c.beta;
             res += LC(t, k);
             return res;
         }
 
-        private double WcrPur(int t, int k) //OWCR for purchasing Xtk
+        private double WcrPur(int t, int k) //OWCR for purchasing Xtk //VALIDE
         {
-            Console.WriteLine("WcrPur " + t + "," + k + " : " + CalculateSum(t + c.delayInPaymentToSupplier, k + c.delayInPaymentFromClient) * c.unitMaterialCost * c.demand[k]);
+            double res = (CalculateSum(t + 1 + c.delayInPaymentToSupplier, c.horizon) - CalculateSum(k + 1 + c.delayInPaymentFromClient, c.horizon)) * c.unitMaterialCost * c.demand[k];
+            Console.WriteLine("WcrPur " + t + "," + k + " : " + res);
 
-            return CalculateSum(t + c.delayInPaymentToSupplier, k + c.delayInPaymentFromClient)*c.unitMaterialCost*c.demand[k];
-            return 0;
-            double res = 0;
-            for (int j = t + c.delayInPaymentToSupplier; j <= c.horizon; j++) res += 1 / Math.Pow(1 + c.alpha, j);
-            for (int j = k + c.delayInPaymentFromClient; j <= c.horizon; j++) res -= 1 / Math.Pow(1 + c.alpha, j);
-            res *= c.unitMaterialCost * c.demand[k];
-            return res;
+            return res ;
         }
-        private double WcrSet(int t, int k)
+        private double WcrSet(int t, int k) //
         {
-            Console.WriteLine("WcrSet " + t + "," + k + " : " + CalculateSum(t, k + c.delayInPaymentFromClient - 1) * c.demand[k] * (c.setupCosts[0] * Y[k][t] / (Q[k][t] + 1 - Y[k][t])));
+            int[] y;
+            int[] q;
 
-            return CalculateSum(t,k+c.delayInPaymentFromClient-1)*c.demand[k] * (c.setupCosts[0] * Y[k][t] / (Q[k][t] + 1 - Y[k][t]));
-            double res = 0;
-            for (int j = t; j <= k + c.delayInPaymentFromClient - 1; j++) res += 1 / Math.Pow(1 + c.alpha, j);
-            res = res * c.demand[k];
-            res = res * (c.setupCosts[0] * Y[k][t] / (Q[k][t] + 1 - Y[k][t])); //fix setupcosts
+            if (k == 0)
+            {
+                q = new int[] { c.demand[0] };
+                if (c.demand[0] > 0) y = new int[] { 1 };
+                else y = new int[] { 0 };
+            }
+            else
+            {
+                y = InducedY(t, Y[k - 1]);
+                q = InducedProductionPlanning(t, Q[k - 1]);
+            }
+            if (q[t] == 0) return 0;
+            double res = CalculateSum(t+1,k+1+c.delayInPaymentFromClient-1) * c.demand[k] * c.setupCosts[0] * y[t] / (q[t] + 1 - y[t]);
+            Console.WriteLine("WcrSet " + t + "," + k + " : " + res);
             return res;
         }
         private double WcrProd(int t, int k)
         {
-            Console.WriteLine("WcrProd " + t + "," + k + " : " + CalculateSum(t, k + c.delayInPaymentFromClient - 1) * c.productionCost * c.demand[k]);
-
-            return CalculateSum(t,k+c.delayInPaymentFromClient-1)*c.productionCost*c.demand[k];
-            double res = 0;
-            for (int j = t; j <= k + c.delayInPaymentFromClient - 1; j++) res += 1 / Math.Pow(1 + c.alpha, j);
-            res *= c.productionCost * c.demand[k];
-            return res;
+            Console.WriteLine("WcrProd " + t + "," + k + " : " + CalculateSum(t + 1, k + 1 + c.delayInPaymentFromClient - 1) * c.productionCost * c.demand[k]);
+            return CalculateSum(t+1,k+1+c.delayInPaymentFromClient-1)*c.productionCost*c.demand[k];
         }
         private double WcrInv(int t, int k)
         {
             double res = 0;
-            for (int l = t; l <= k - 1; l++)
+            for (int l = t+1; l <= k ; l++)
             {
-                res += CalculateSum(l, k + c.delayInPaymentFromClient - 1);
+                res += CalculateSum(l, k + 1 + c.delayInPaymentFromClient - 1);
             }
             res *= c.inventoryCosts[0] * c.demand[k]; //fix couts inventaire
 
@@ -218,12 +234,12 @@ namespace Algorithms
             int[] inventory = InducedInventoryLevels(t, I[k-1]);
 
             double res = 0;
-            res += c.unitMaterialCost * production[t - c.delayInPaymentToSupplier+1];
+            if(t - c.delayInPaymentToSupplier>=0) res += c.unitMaterialCost * production[t - c.delayInPaymentToSupplier];
             res += c.productionCost * production[t];
             /*if (t<k && production[t] > 0 || t==k)*/ res += c.setupCosts[t]; //* Y[k][t]; //ATTENTION SETUPCOSTS CONSTANTS
             for (int l = t; l<k; l++) res += c.inventoryCosts[0] * inventory[l];
             res *= Math.Pow(1 + c.alpha, -t);
-            Console.WriteLine("LC " + t + "," + k + " : " + res);
+            //Console.WriteLine("LC " + t + "," + k + " : " + res);
 
             return res;
         }
@@ -236,6 +252,14 @@ namespace Algorithms
             production[t] += c.demand[k];
             return production;
         }
+        private int[] InducedY(int t, int[] lastY)
+        {
+            int k = lastY.Length;
+            int[] y = new int[k + 1];
+            for (int i = 0; i < k; i++) y[i] = Y[k - 1][i];
+            y[t] = 1;
+            return y;
+        }
         private int[] InducedInventoryLevels(int t, int[] lastIterationInventoryLevel)
         {
             int k = lastIterationInventoryLevel.Length;
@@ -244,7 +268,6 @@ namespace Algorithms
             for (int j = t; j < k; j++) inventory[j] += c.demand[k];
             return inventory;
         }
-
         private int GetPeriodOfLatestSetup(int k)
         {
             for (int i = k-1; i >= 0; i--)
@@ -256,6 +279,7 @@ namespace Algorithms
             }
             return 0;
         }
+
         private static int IndexOfMinimum(double[] arr, int startIndex) //duplicate WagnerWhitin
         {
             if (arr.Length == 0 || arr == null) return 0;
@@ -274,7 +298,12 @@ namespace Algorithms
 
         private double CalculateSum (int beginIndex, int endIndex)
         {
-            return CalculateSum(endIndex) - CalculateSum(beginIndex);
+            double res = 0;
+            for(int i = beginIndex; i<=endIndex; i++) res+= Math.Pow(1/(1 + c.alpha), i);
+
+
+            //
+            return res;
         }
         private double CalculateSum(int endIndex)
         {

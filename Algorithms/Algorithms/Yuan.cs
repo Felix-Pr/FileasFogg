@@ -91,8 +91,8 @@ namespace Algorithms
             }
 
             double res = 0;
-            res += c.unitMaterialCost * Q[k][t - c.delayInPaymentToSupplier]; //raw material cost
-            res += c.productionCost * Q[k][t]; //production cost
+            res += c.a * Q[k][t - c.rf]; //raw material cost
+            res += c.p * Q[k][t]; //production cost
             //res += c.setupCost * Y[k][t]; //setup cost
             //res += c.inventoryCost * I[k][t]; //inventory cost
             res *= 1 / Math.Pow(1 + c.alpha, t);
@@ -102,15 +102,15 @@ namespace Algorithms
         private double WcrPur(int t, int k)
         {
             double res = 0;
-            for (int j = t + c.delayInPaymentToSupplier; j <= c.horizon; j++) res += 1 / Math.Pow(1 + c.alpha, j);
-            for (int j = k + c.delayInPaymentFromClient; j <= c.horizon; j++) res -= 1 / Math.Pow(1 + c.alpha, j);
-            res *= c.unitMaterialCost * X[k][t][k];
+            for (int j = t + c.rf; j <= c.horizon; j++) res += 1 / Math.Pow(1 + c.alpha, j);
+            for (int j = k + c.rc; j <= c.horizon; j++) res -= 1 / Math.Pow(1 + c.alpha, j);
+            res *= c.a * X[k][t][k];
             return res;
         }
         private double WcrSet(int t, int k)
         {
             double res = 0;
-            for (int j = t; j <= k + c.delayInPaymentFromClient - 1; j++) res += 1 / Math.Pow(1 + c.alpha, j);
+            for (int j = t; j <= k + c.rc - 1; j++) res += 1 / Math.Pow(1 + c.alpha, j);
             //res = res * X[k][t];
             //res = res * (c.setupCost * Y[t] / (Q[t] + 1 - Y[t]));
             return res;
@@ -118,7 +118,7 @@ namespace Algorithms
         private double WcrProd(int t, int k)
         {
             double res = 0;
-            for (int j = t; j <= k + c.delayInPaymentFromClient - 1; j++) res += 1 / Math.Pow(1 + c.alpha, j);
+            for (int j = t; j <= k + c.rc - 1; j++) res += 1 / Math.Pow(1 + c.alpha, j);
             //res *= c.productionCost * X[t][k];
             return res;
         }
@@ -127,7 +127,7 @@ namespace Algorithms
             double res = 0;
             for (int l = t;l<= k - 1;l++)
             {
-                for(int j = l; j <= k + c.delayInPaymentFromClient - 1; j++)
+                for(int j = l; j <= k + c.rc - 1; j++)
                 {
                     res+= 1 / Math.Pow(1 + c.alpha, j);
                 }

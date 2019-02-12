@@ -8,6 +8,9 @@ namespace Algorithms
         public readonly double[] setupCosts;
         public readonly double[] inventoryCosts;
         public readonly int horizon;
+        public double productionCost = 2;
+        public double unitRawMaterialCost = 3;
+        
 
         //output variables
         private double[] minimalCosts;//minimum production costs for plannings from period 1 to i
@@ -86,6 +89,8 @@ namespace Algorithms
             for (int i = 0; i < horizon; i++) { 
                 ComputeProductionPlanForPeriods1ToI(i);
             }
+            AddProductionAndRawMaterialCosts();
+
         }
 
         private void ComputeProductionPlanForPeriods1ToI(int i)
@@ -94,7 +99,7 @@ namespace Algorithms
                 //first period particular case
                 optimalInventory[0][0] = 0;
                 optimalProductionQuantity[0][0] = demand[0];
-                if (demand[0] > 0) minimalCosts[0] = setupCosts[0];
+                if (demand[0] > 0) minimalCosts[0] = setupCosts[0] ;
                 return;
             }
 
@@ -131,8 +136,21 @@ namespace Algorithms
             int indexOfMinimumCostCase = IndexOfMinimum(possibleCosts);
 
             minimalCosts[i] = possibleCosts[indexOfMinimumCostCase];
+
             optimalProductionQuantity[i] = possibleProductionQuantities[indexOfMinimumCostCase];
             optimalInventory[i] = possibleInventories[indexOfMinimumCostCase];
+
+            //if (i == demand.Length - 1) minimalCosts[i] += (productionCost + unitRawMaterialCost) * sumOfDemandTillPeriod(i);
+
+        }
+
+        private void AddProductionAndRawMaterialCosts()
+        {
+            double cumulativeCost = 0;
+            for(int i = 0; i<demand.Length; i++)
+            {
+                minimalCosts[i] += sumOfDemandTillPeriod(i) * (unitRawMaterialCost + productionCost);
+            }
         }
 
         private void EvaluateCostOfProducingAtPeriodJforI(int i, int j, ref List<double> possibleCosts, ref List<int[]> possibleInventories, ref List<int[]> possibleProductionQuantities)
@@ -185,6 +203,13 @@ namespace Algorithms
                 }
             }
             return index;
+        }
+
+        private int sumOfDemandTillPeriod(int i)
+        {
+            int res = 0;
+            for (int j = 0; j <= i; j++) res += demand[j];
+            return res;
         }
     }
 }

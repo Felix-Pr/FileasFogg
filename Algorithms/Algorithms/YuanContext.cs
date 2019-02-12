@@ -11,11 +11,11 @@ namespace Algorithms
         public List<int> demand { get; set; } //demand
         public double sellingPrice { get; set; } //product price
         public List<double> inventoryCosts { get; set; } //inventory cost
-        public double productionCost { get; set; } //production cost
+        public double p { get; set; } //production cost
         public List<double> setupCosts { get; set; } //setup cost
-        public double unitMaterialCost { get; set; } //unit raw material cost
-        public int delayInPaymentFromClient { get; set; } //delay in payment from client
-        public int delayInPaymentToSupplier { get; set; } //delay in payment to supplier
+        public double a { get; set; } //unit raw material cost
+        public int rc { get; set; } //delay in payment from client
+        public int rf { get; set; } //delay in payment to supplier
         public double alpha { get; set; } //discount rate per period
         public double beta { get; set; } //interest rate for financing OWCR per period
 
@@ -46,20 +46,20 @@ namespace Algorithms
                             inventoryCosts = new List<double>() { double.Parse(values[i]) };
                             break;
                         case ("Production Cost"):
-                            productionCost = int.Parse(values[i]);
+                            p = int.Parse(values[i]);
                             break;
                         case ("Setup Cost"):
                             setupCostColumnIndex = i;
                             setupCosts = new List<double> { double.Parse(values[i]) };
                             break;
                         case ("Unit Material Cost"):
-                            unitMaterialCost = int.Parse(values[i]);
+                            a = int.Parse(values[i]);
                             break;
                         case ("Delay in payment to Supplier"):
-                            delayInPaymentToSupplier = int.Parse(values[i]);
+                            rf = int.Parse(values[i]);
                             break;
                         case ("Delay in payment from Client"):
-                            delayInPaymentFromClient = int.Parse(values[i]);
+                            rc = int.Parse(values[i]);
                             break;
                         case ("Discount Rate"): //alpha
                             alpha = double.Parse(values[i]);
@@ -89,10 +89,10 @@ namespace Algorithms
         {
             alpha = double.Parse(constantsDataGridView.Rows[0].Cells["Alpha"].Value.ToString());
             beta = double.Parse(constantsDataGridView.Rows[0].Cells["Beta"].Value.ToString());
-            delayInPaymentFromClient = int.Parse(constantsDataGridView.Rows[0].Cells["Delay in Payment from Client"].Value.ToString());
-            delayInPaymentToSupplier = int.Parse(constantsDataGridView.Rows[0].Cells["Delay in Payment to Supplier"].Value.ToString());
-            unitMaterialCost = double.Parse(constantsDataGridView.Rows[0].Cells["Unit Material Cost"].Value.ToString());
-            productionCost = double.Parse(constantsDataGridView.Rows[0].Cells["Production Cost"].Value.ToString());
+            rc = int.Parse(constantsDataGridView.Rows[0].Cells["Delay in Payment from Client"].Value.ToString());
+            rf = int.Parse(constantsDataGridView.Rows[0].Cells["Delay in Payment to Supplier"].Value.ToString());
+            a = double.Parse(constantsDataGridView.Rows[0].Cells["Unit Material Cost"].Value.ToString());
+            p = double.Parse(constantsDataGridView.Rows[0].Cells["Production Cost"].Value.ToString());
             sellingPrice = double.Parse(constantsDataGridView.Rows[0].Cells["Selling Price"].Value.ToString());
             horizon = horizonLength;
             setupCosts = new List<double>(horizon);

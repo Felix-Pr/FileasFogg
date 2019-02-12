@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace Algorithms
 {
@@ -15,6 +17,8 @@ namespace Algorithms
         public int[][] I; //inventaire a la periode t
         private int[][] lastXtk;
         private double[] owcr;
+
+
 
         public YuanTry(string fileName)
         {
@@ -53,6 +57,17 @@ namespace Algorithms
 
             for(int i = 0; i<algo.c.horizon; i++) Console.WriteLine("Cost "+i+ " : " + algo.minimalFinancingCosts[i]);
 
+
+            Console.WriteLine();
+            Console.WriteLine("delayinpayment fclient "+algo.c.rc);
+            Console.WriteLine("delayinpayment tsupp "+algo.c.rf);
+            Console.WriteLine();
+
+
+
+            //algo.CreateMatrix();
+            //algo.ShortestPath();
+
             Console.Read();
         }
 
@@ -75,9 +90,55 @@ namespace Algorithms
             minimalFinancingCosts[0] = ComputeEtk(0, 0);
         }
 
+        private double[][] matrix;
+        private double[] minCosts;
+        private List<int> Path;
+
+        private void CreateMatrix()
+        {
+            matrix = new double[c.horizon][];
+            for(int i = 0; i<c.horizon; i++)
+            {
+                matrix[i] = new double[i + 1];
+                for(int j = 0; j<=i; j++)
+                {
+                    matrix[i][j] = LC(j, i) + c.beta * (WcrPur(j, i) + WcrInv(j, i) + WcrSet(j, i) + WcrProd(j, i));
+                }
+            }
+
+            /*for (int i = 0; i < c.horizon; i++) {
+                Console.Write(i + " : ");
+                for (int j = 0; j <= i; j++) {
+                    Console.Write(" " + matrix[i][j] + " ");
+                }
+                Console.WriteLine();
+            }*/
+        }
+        private void ShortestPath()
+        {
+            minCosts = new double[c.horizon];
+            minCosts[0] = matrix[0][0];
+            for(int i =1; i < c.horizon; i++)
+            {
+                List<double> possibleCosts = new List<double>() { matrix[i][0] };
+                for(int j =1; j<=i; j++)
+                {
+                    possibleCosts.Add(minCosts[j - 1] + matrix[i][j]);
+                }
+
+                minCosts[i] = possibleCosts[IndexOfMinimum(possibleCosts.ToArray(),0)];
+            }
+
+            for (int i = 0; i < c.horizon; i++) Console.WriteLine("Minimum costs " + i + ": " + minCosts[i]);
+
+        }
         public void ComputeProductionPlan()
         {
             InitializeArrays();
+            for (int k = 0; k < c.horizon; k++)
+            {
+                ComputeEk(k);
+            }
             for (int k = 0; k < c.horizon; k++)
             {
                 ComputeProductionPlanFomPeriods1toK(k);
@@ -85,10 +146,10 @@ namespace Algorithms
         }
         private void ComputeProductionPlanFomPeriods1toK(int k)
         {
-            if (k == 0) return;
+            if (k == 0) { ComputeEk(0); return; }
 
             int periodOfLatestSetup = GetPeriodOfLatestSetup(k);
-            ComputeEk(k, periodOfLatestSetup);
+            ComputeEk(k);
 
             double[] possibleFinancingCosts = new double[k + 1];
             possibleFinancingCosts[0] = Ekt[k][0];
@@ -160,31 +221,110 @@ namespace Algorithms
             }
             I[k] = i;
         }
-        private void ComputeEk(int k, int tmin)
+        private void ComputeEk(int k)
         {
-            for (int t = tmin; t <= k; t++)
+            for (int t = 0; t <= k; t++)
             {
                 Ekt[k][t] = ComputeEtk(t, k);
             }
         }
+
         private double ComputeEtk(int t, int k)
         {
             double res = 0;
             //ATTENTION determiner la somme
             //for (int l = t; l <= k-1; l++) res += WcrPur(t, k) + WcrSet(t, k) + WcrProd(t, k) + WcrInv(t, k);
-            res += WcrPur(t, k) + WcrSet(t, k) + WcrProd(t, k) + WcrInv(t, k);
-            res *= c.beta;
+            //res += WcrPur(t, k) + WcrSet(t, k) + WcrProd(t, k) + WcrInv(t, k);
+
+            //res *= c.beta;
+
+            int sumOfDemand = 0;
+            for (int i = t; i <= k; i++) sumOfDemand += c.demand[i];
+            if (sumOfDemand == 0) return 0;
+
             res += LC(t, k);
+
+            double wcrFinancingCost = 0;
+            double difference = 0;
+
+            for(int l = t; l<k; l++)
+            {
+                double num = 0;
+                for (int j = t; j < c.horizon; j++) num += c.a * alphaPower(j + 1 + c.rf);
+                for (int j = l; j < c.horizon; j++) num -= c.a * alphaPower(j + 1+ c.rc);
+
+                difference = num;
+                for (int j = t; j < l + c.rc; j++) num += c.p * alphaPower(j+1);
+                for (int j = t; j < l+c.rc; j++) num += c.setupCosts[0] * alphaPower(j + 1) / sumOfDemand;
+                for (int i = t; i < l; i++)
+                {
+                    for(int j = i; j < l + c.rc; j++)
+                    {
+                        num += c.inventoryCosts[0] * alphaPower(j+1);
+                    }
+                }
+
+                num *= c.demand[l];
+                wcrFinancingCost += num;
+            }
+            wcrFinancingCost *= c.beta;
+            res += wcrFinancingCost;
+
             return res;
+        }
+
+        public double minimalCosts()
+        {
+            double[] cost = new double[c.horizon];
+            cost[0] = Ekt[0][0];
+
+            for(int k = 1; k<c.horizon; k++)
+            {
+                double minCost = Ekt[k][0];
+                for(int t =1; t<=k; t++)
+                {
+                    if (minCost > cost[t - 1] + Ekt[k][t]) minCost = cost[t - 1] + Ekt[k][t];
+                }
+                cost[k] = minCost;
+            }
+
+            return cost[c.horizon-1];
+
         }
 
         private double WcrPur(int t, int k) //OWCR for purchasing Xtk //VALIDE
         {
-            double res = (CalculateSum(t + 1 + c.delayInPaymentToSupplier, c.horizon) - CalculateSum(k + 1 + c.delayInPaymentFromClient, c.horizon)) * c.unitMaterialCost * c.demand[k];
+            double res = (CalculateSum(t + 1 + c.rf, c.horizon) - CalculateSum(k + 1 + c.rc, c.horizon)) * c.a * c.demand[k];
             Console.WriteLine("WcrPur " + t + "," + k + " : " + res);
 
             return res ;
         }
+        private double newWcrSet(int t, int k) //
+        {
+            /*int[] y;
+            int[] q;
+
+            if (k == 0)
+            {
+                q = new int[] { c.demand[0] };
+                if (c.demand[0] > 0) y = new int[] { 1 };
+                else y = new int[] { 0 };
+            }
+            else
+            {
+                y = InducedY(t, Y[k - 1]);
+                q = InducedProductionPlanning(t, Q[k - 1]);
+            }*/
+
+            int q = 0;
+            for (int i = t; i <= k; i++) q += c.demand[i];
+            if (q == 0) return 0;
+            double res = 0;
+            for(int j = t; j<=k; j++) res+= CalculateSum(j+1,j+1+c.rc-1) * (c.demand[j]/q) *c.setupCosts[0];
+            Console.WriteLine("WcrSet " + t + "," + k + " : " + res);
+            return res;
+        }
+
         private double WcrSet(int t, int k) //
         {
             int[] y;
@@ -202,21 +342,22 @@ namespace Algorithms
                 q = InducedProductionPlanning(t, Q[k - 1]);
             }
             if (q[t] == 0) return 0;
-            double res = CalculateSum(t+1,k+1+c.delayInPaymentFromClient-1) * c.demand[k] * c.setupCosts[0] * y[t] / (q[t] + 1 - y[t]);
+            double res = CalculateSum(t + 1, k + 1 + c.rc - 1) * c.demand[k] * c.setupCosts[0] * y[t] / (q[t] + 1 - y[t]);
             Console.WriteLine("WcrSet " + t + "," + k + " : " + res);
             return res;
         }
+
         private double WcrProd(int t, int k)
         {
-            Console.WriteLine("WcrProd " + t + "," + k + " : " + CalculateSum(t + 1, k + 1 + c.delayInPaymentFromClient - 1) * c.productionCost * c.demand[k]);
-            return CalculateSum(t+1,k+1+c.delayInPaymentFromClient-1)*c.productionCost*c.demand[k];
+            Console.WriteLine("WcrProd " + t + "," + k + " : " + CalculateSum(t + 1, k + 1 + c.rc - 1) * c.p * c.demand[k]);
+            return CalculateSum(t+1,k+1+c.rc-1)*c.p*c.demand[k];
         }
         private double WcrInv(int t, int k)
         {
             double res = 0;
             for (int l = t+1; l <= k ; l++)
             {
-                res += CalculateSum(l, k + 1 + c.delayInPaymentFromClient - 1);
+                res += CalculateSum(l, k + 1 + c.rc - 1);
             }
             res *= c.inventoryCosts[0] * c.demand[k]; //fix couts inventaire
 
@@ -225,25 +366,63 @@ namespace Algorithms
         }
         private double LC(int t, int k)
         {
-            if (k == 0)
-            {
-                return c.setupCosts[0]+ c.demand[0]*c.unitMaterialCost + c.productionCost;
-            }
+            int sumOfDemand = 0;
+            for (int i = t; i <= k; i++) sumOfDemand += c.demand[i];
 
+            double res = 0;
+            res += c.a * alphaPower(t + 1+c.rf) + c.p * alphaPower(t+1);
+            res *= sumOfDemand;
+            res += c.setupCosts[0] * alphaPower(t+1);
+
+            double inventoryCosts = 0;
+            for(int l = t; l<=k; l++)
+            {
+                double hSum = 0;
+                for (int i = t; i < l; i++) hSum += c.inventoryCosts[0] * alphaPower(i+1);
+                inventoryCosts += hSum * c.demand[l];
+            }
+            res += inventoryCosts;
+            
+            /*
             int[] production =InducedProductionPlanning(t, Q[k-1]);
             int[] inventory = InducedInventoryLevels(t, I[k-1]);
 
             double res = 0;
-            if(t - c.delayInPaymentToSupplier>=0) res += c.unitMaterialCost * production[t - c.delayInPaymentToSupplier];
+            if(t - c.delayInPaymentToSupplier>=0) res += c.a * production[t - c.delayInPaymentToSupplier];
             res += c.productionCost * production[t];
-            /*if (t<k && production[t] > 0 || t==k)*/ res += c.setupCosts[t]; //* Y[k][t]; //ATTENTION SETUPCOSTS CONSTANTS
+            //if (t<k && production[t] > 0 || t==k)// res += c.setupCosts[t]; //* Y[k][t]; //ATTENTION SETUPCOSTS CONSTANTS
             for (int l = t; l<k; l++) res += c.inventoryCosts[0] * inventory[l];
             res *= Math.Pow(1 + c.alpha, -t);
             //Console.WriteLine("LC " + t + "," + k + " : " + res);
-
+            */
             return res;
         }
-        
+
+        private double newLC(int t, int k)
+        {
+
+            int demand = c.demand[k];
+
+            double res = 0;
+            res += c.a * alphaPower(t + 1 + c.rf) + c.p * alphaPower(t + 1);
+            res *= demand;
+            res += c.setupCosts[0] * alphaPower(t + 1);
+            res += CalculateSum(t, k - 1) * demand;
+            
+            /*
+            int[] production =InducedProductionPlanning(t, Q[k-1]);
+            int[] inventory = InducedInventoryLevels(t, I[k-1]);
+
+            double res = 0;
+            if(t - c.delayInPaymentToSupplier>=0) res += c.a * production[t - c.delayInPaymentToSupplier];
+            res += c.productionCost * production[t];
+            //if (t<k && production[t] > 0 || t==k)// res += c.setupCosts[t]; //* Y[k][t]; //ATTENTION SETUPCOSTS CONSTANTS
+            for (int l = t; l<k; l++) res += c.inventoryCosts[0] * inventory[l];
+            res *= Math.Pow(1 + c.alpha, -t);
+            //Console.WriteLine("LC " + t + "," + k + " : " + res);
+            */
+            return res;
+        }
         private int[] InducedProductionPlanning(int t, int[] lastIterationPlanning)
         {
             int k = lastIterationPlanning.Length;
@@ -252,6 +431,11 @@ namespace Algorithms
             production[t] += c.demand[k];
             return production;
         }
+        private double alphaPower(int t)
+        {
+            return Math.Pow(1 + c.alpha, -t);
+        }
+
         private int[] InducedY(int t, int[] lastY)
         {
             int k = lastY.Length;
@@ -300,9 +484,6 @@ namespace Algorithms
         {
             double res = 0;
             for(int i = beginIndex; i<=endIndex; i++) res+= Math.Pow(1/(1 + c.alpha), i);
-
-
-            //
             return res;
         }
         private double CalculateSum(int endIndex)

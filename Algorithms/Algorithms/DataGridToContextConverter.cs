@@ -22,11 +22,11 @@ namespace Algorithms
             return new YuanContext()
             {
                 horizon = horizon,
-                productionCost = (int)constants.Rows[0].Cells[1].Value,
+                p = (int)constants.Rows[0].Cells[1].Value,
                 sellingPrice = (int)constants.Rows[0].Cells[2].Value,
-                unitMaterialCost = (int)constants.Rows[0].Cells[3].Value,
-                delayInPaymentFromClient = (int)constants.Rows[0].Cells[4].Value,
-                delayInPaymentToSupplier = (int)constants.Rows[0].Cells[5].Value,
+                a = (int)constants.Rows[0].Cells[3].Value,
+                rc = (int)constants.Rows[0].Cells[4].Value,
+                rf = (int)constants.Rows[0].Cells[5].Value,
                 alpha = (int)constants.Rows[0].Cells[6].Value,
                 beta = (int)constants.Rows[0].Cells[7].Value,
                 demand = demand,

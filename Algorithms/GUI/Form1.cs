@@ -34,13 +34,7 @@ namespace GUI
 
         private void GenerateColumns()
         {
-            /*DataGridViewTextBoxColumn horizon = new DataGridViewTextBoxColumn()
-            {
-                ValueType = typeof(int),
-                SortMode = DataGridViewColumnSortMode.NotSortable,
-                Name = "Horizon",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            };*/
+            
             DataGridViewTextBoxColumn sellingPrice = new DataGridViewTextBoxColumn()
             {
                 ValueType = typeof(double),
@@ -188,9 +182,7 @@ namespace GUI
                     variableRows.Add(variableRow);
                 }
             }
-
             LoadDataGrid(horizonLength, constantRow, variableRows);
-
         }
 
         private static T[] SubArray<T>(T[] data, int index, int length)
@@ -274,7 +266,13 @@ namespace GUI
                 return;
             }
             deletedRows = new Stack<DataGridViewRow>();
-            LoadDataGrid(openFileDialog.FileName);
+            try
+            {
+                LoadDataGrid(openFileDialog.FileName);
+            }
+            catch(Exception ex) {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void wagnerWhitinButton_Click(object sender, EventArgs e)
@@ -347,6 +345,8 @@ namespace GUI
             {
                 tb.KeyPress += new KeyPressEventHandler(Column_KeyPress);
             }
+
+            
         }
 
         private void Column_KeyPress(object sender, KeyPressEventArgs e)
@@ -365,13 +365,10 @@ namespace GUI
             }
         }
 
-
         private void Settings_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (constantsDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString() == "") constantsDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = 0;
         }
-
-        
 
         private bool VariableRowIsNotEmpty(int rowIndex)
         {
@@ -420,8 +417,8 @@ namespace GUI
                 firstRow[4] = constantsDataGrid.Rows[0].Cells["Production Cost"].Value.ToString();
                 firstRow[5] = constantsDataGrid.Rows[0].Cells["Selling Price"].Value.ToString();
                 firstRow[6] = constantsDataGrid.Rows[0].Cells["Unit Material Cost"].Value.ToString();
-                firstRow[7] = constantsDataGrid.Rows[0].Cells["Delay in Payment from Client"].Value.ToString();
-                firstRow[8] = constantsDataGrid.Rows[0].Cells["Delay in Payment to Supplier"].Value.ToString();
+                firstRow[7] = constantsDataGrid.Rows[0].Cells["Delay in Payment to Supplier"].Value.ToString();
+                firstRow[8] = constantsDataGrid.Rows[0].Cells["Delay in Payment from Client"].Value.ToString();
                 firstRow[9] = constantsDataGrid.Rows[0].Cells["Alpha"].Value.ToString();
                 firstRow[10] = constantsDataGrid.Rows[0].Cells["Beta"].Value.ToString();
                 rows = new List<string[]>();
@@ -436,8 +433,6 @@ namespace GUI
             catch { MessageBox.Show("Please fill settings before saving");
                 return;
             }
-            
-
             try
             {
                 using (StreamWriter file = new StreamWriter(filePath))
@@ -448,33 +443,34 @@ namespace GUI
                 }
 
             }
-            catch (System.IO.IOException)
+            catch (IOException)
             {
                 MessageBox.Show("Write access denied");
             }
-           
         }
 
         private void yuanButton_click(object sender, EventArgs e)
         {
             {
-               
                 try
                 {
                     YuanTry y = new YuanTry(new YuanContext((int)horizonNumericUpDown.Value, constantsDataGrid, variablesDataGrid));
-                    y.InitializeArrays();
                     y.ComputeProductionPlan();
                     minimalCosts = y.minimalFinancingCosts;
                     optimalInventory = y.I[y.I.Length-1];
                     optimalProductionQuantity = y.Q[y.Q.Length-1];
                     ShowResults();
                     exportResultsButton.Enabled = true;
+
+                    //eMessageBox.Show(""+y.minimalCosts());
                 }
                 catch(Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
             }
+
+            
         }
 
         private void variablesDataGrid_CellValueChanged(object sender, DataGridViewCellEventArgs e)
@@ -512,7 +508,5 @@ namespace GUI
                 }
             }
         }
-
-        
     }
 }

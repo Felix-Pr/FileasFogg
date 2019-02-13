@@ -129,6 +129,7 @@
             this.variablesDataGrid.RowTemplate.Height = 28;
             this.variablesDataGrid.Size = new System.Drawing.Size(667, 408);
             this.variablesDataGrid.TabIndex = 8;
+            this.variablesDataGrid.CellParsing += new System.Windows.Forms.DataGridViewCellParsingEventHandler(this.variablesDataGrid_CellParsing);
             this.variablesDataGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.variablesDataGrid_CellValueChanged);
             this.variablesDataGrid.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dataGridView_EditingControlShowing);
             // 

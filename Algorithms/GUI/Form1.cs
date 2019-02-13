@@ -339,6 +339,7 @@ namespace GUI
 
         private void dataGridView_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
+            
             e.Control.KeyPress -= new KeyPressEventHandler(Column_KeyPress);
             TextBox tb = e.Control as TextBox;
             if (tb != null)
@@ -351,6 +352,7 @@ namespace GUI
 
         private void Column_KeyPress(object sender, KeyPressEventArgs e)
         {
+            
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '.')
             {
                 e.Handled = true;
@@ -462,13 +464,13 @@ namespace GUI
                     ShowResults();
                     exportResultsButton.Enabled = true;
 
-                    //eMessageBox.Show(""+y.minimalCosts());
                 }
                 catch(Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
             }
+            //
 
             
         }
@@ -507,6 +509,11 @@ namespace GUI
                     variablesDataGrid.Rows.RemoveAt(i);
                 }
             }
+        }
+
+        private void variablesDataGrid_CellParsing(object sender, DataGridViewCellParsingEventArgs e)
+        {
+           // if(variablesDataGrid.c)
         }
     }
 }
